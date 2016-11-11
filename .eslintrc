@@ -1,0 +1,9 @@
+{
+  "extends": "rallycoding",
+  "rules": {
+    "react/require-extension": "off",
+    "no-unused-vars": ["warn"],
+    "arrow-body-style": 0
+  },
+}
+/*eslint linebreak-style: ["error", "windows"]*/
