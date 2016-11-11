@@ -3,7 +3,7 @@
   "rules": {
     "react/require-extension": "off",
     "no-unused-vars": ["warn"],
-    "arrow-body-style": 0
+    "arrow-body-style": 0,
+    "linebreak-style": ["error", "windows"]
   },
 }
-/*eslint linebreak-style: ["error", "windows"]*/
