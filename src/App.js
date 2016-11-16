@@ -1,43 +1,74 @@
 /* eslint-disable  global-require */
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import {
+  Platform
+} from 'react-native';
 import { Navigation } from 'react-native-navigation';
-import reducers from './reducers';
 import { registerScreens } from './screens';
 
 registerScreens(); // this is where you register all of your app's screens
 
-Navigation.startTabBasedApp({
-  tabs: [
+// Navigation.startTabBasedApp({
+//   tabs: [
+//     {
+//       label: 'Feed',
+//       screen: 'PetSpot.Feed', // this is a registered name for a screen
+//       icon: require('../img/one@1x.android.png'),
+//       title: 'Feed'
+//     },
+//     {
+//       label: 'Login',
+//       screen: 'PetSpot.Login',
+//       icon: require('../img/two@2x.png'),
+//       selectedIcon: require('../img/two_selected@2x.png'),
+//       title: 'Login'
+//     }
+//   ]
+// });
+
+
+const createTabs = () => {
+  const tabs = [
     {
-      label: 'One',
-      screen: 'PetSpot.Feed', // this is a registered name for a screen
-      icon: require('../img/colors.png'),
-      selectedIcon: require('../img/colors.png'),
+      label: 'Feed',
+      screen: 'PetSpot.Feed',
+      icon: require('../img/one@1x.android.png'),
+      selectedIcon: require('../img/one_selected@2x.png'),
       title: 'Screen One'
     },
     {
-      label: 'Two',
+      label: 'Login',
       screen: 'PetSpot.Login',
-      icon: require('../img/colors.png'),
-      selectedIcon: require('../img/colors.png'),
-      title: 'Screen Two'
+      icon: require('../img/two@2x.png'),
+      selectedIcon: require('../img/two_selected@2x.png'),
+      title: 'Screen Two',
+      navigatorStyle: {
+        tabBarBackgroundColor: '#4dbce9',
+      }
     }
-  ]
-});
+  ];
 
-class App extends Component {
-  render() {
-    return (
-      <Provider store={createStore(reducers)}>
-        <View>
-          <Text>Some text Here</Text>
-        </View>
-      </Provider>
-    );
+  if (Platform.OS === 'android') {
+    tabs.push({
+      label: 'Collapsing',
+      screen: 'PetSpot.CollapsingTopBarScreen',
+      icon: require('../img/one@1x.android.png'),
+      title: 'Collapsing',
+    });
   }
-}
+  return tabs;
+};
 
-export default App;
+
+Navigation.startTabBasedApp({
+  tabs: createTabs(),
+  appStyle: {
+    tabBarBackgroundColor: '#0f2362',
+    tabBarButtonColor: '#ffffff',
+    tabBarSelectedButtonColor: '#63d7cc'
+  },
+  drawer: {
+    left: {
+      screen: 'PetSpot.SideMenu'
+    }
+  }
+});
