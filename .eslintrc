@@ -4,6 +4,6 @@
     "react/require-extension": "off",
     "no-unused-vars": ["warn"],
     "arrow-body-style": 0,
-    "linebreak-style": ["error", "windows"]
+    "linebreak-style": ["error", "windows"],
   },
 }

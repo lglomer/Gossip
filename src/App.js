@@ -5,49 +5,32 @@ import { registerScreens } from './screens';
 
 registerScreens(); // this is where you register all of your app's screens
 
-const createTabs = () => {
-  const tabs = [
+const createTabs = () => [ // a function that returns the tabs
     {
       label: 'Feed',
       screen: 'PetSpot.Feed',
-      icon: require('../img/one@1x.android.png'),
-      selectedIcon: require('../img/one_selected@2x.png'),
-      title: 'Feed'
-    },
-    {
-      label: 'Login',
-      screen: 'PetSpot.Login',
-      icon: require('../img/two@2x.png'),
-      selectedIcon: require('../img/two_selected@2x.png'),
-      title: 'Login',
-    },
-    {
-      label: 'Collapse',
-      screen: 'PetSpot.CollapsingTopBarScreen',
-      icon: require('../img/three@2x.png'),
-      selectedIcon: require('../img/three_selected@2x.png'),
-      title: 'Collapse Bro',
+      icon: require('./img/one@1x.android.png'),
+      selectedIcon: require('./img/one_selected@2x.png'),
+      title: 'Feed',
     }
   ];
 
-  // if (Platform.OS === 'android') {
-  //   tabs.push({
-  //     label: 'Collapsing',
-  //     screen: 'PetSpot.CollapsingTopBarScreen',
-  //     icon: require('../img/one@1x.android.png'),
-  //     title: 'Huh',
-  //   });
-  // }
-  return tabs;
-};
-
+Navigation.showModal({
+  title: 'Login',
+  screen: 'PetSpot.Login',
+  animationType: 'slide-up',
+  navigatorStyle: {
+    navBarHidden: true
+  }
+});
 
 Navigation.startTabBasedApp({
   tabs: createTabs(),
   appStyle: {
     tabBarBackgroundColor: '#ffffff',
     tabBarButtonColor: '#444444',
-    tabBarSelectedButtonColor: '#42A5F5'
+    tabBarSelectedButtonColor: '#42A5F5',
+    statusBarColor: '#999999'
   },
   drawer: {
     left: {
