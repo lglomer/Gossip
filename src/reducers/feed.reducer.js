@@ -1,5 +1,5 @@
 import RETRIEVE_POPULAR_MOVIES_SUCCESSS from '../constants/actionTypes';
-import initialState from './initialState';
+import initialState from '../store/initialState';
 
 export default function (state = initialState.feed, action) {
 	switch (action.type) {
