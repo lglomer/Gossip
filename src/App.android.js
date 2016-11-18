@@ -1,20 +1,13 @@
 /* eslint-disable  global-require */
 import { Navigation } from 'react-native-navigation';
-import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
-import reducers from './reducers';
+import configureStore from './store/configureStore';
 import { registerScreens } from './screens';
 
-// redux related book keeping
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
-const reducer = combineReducers(reducers);
-const store = createStoreWithMiddleware(reducer);
+const store = configureStore();
+registerScreens(store, Provider); // register app's screens
 
-// screen related book keeping
-registerScreens(store, Provider); // this is where you register all of your app's screens
-
-const createTabs = () => [ // a function that returns the tabs
+const createTabs = () => [ // returns the app's tabs
     {
       screenId: 'PetSpot.Feed',
       title: 'Feed',
