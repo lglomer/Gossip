@@ -5,6 +5,7 @@ import {
 	Text,
 	Alert,
 } from 'react-native';
+import { Card } from '../_global/components';
 
 class Feed extends Component {
 	static navigatorButtons = {
@@ -33,7 +34,8 @@ class Feed extends Component {
 		const { container } = styles;
 		return (
       <View style={container}>
-				<Text>FEEEEEED ME</Text>
+				<Text>ss</Text>
+				<Card />
 			</View>
 		);
 	}

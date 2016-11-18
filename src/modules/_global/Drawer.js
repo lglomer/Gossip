@@ -4,7 +4,7 @@ import {
 	Text
 } from 'react-native';
 
-class SideMenu extends Component {
+class Drawer extends Component {
 	render() {
 		const { menuContainer, menuHeader, menuBody } = styles;
 		return (
@@ -36,4 +36,4 @@ const styles = {
 	},
 };
 
-export default SideMenu;
+export default Drawer;

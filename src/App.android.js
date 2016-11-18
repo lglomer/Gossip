@@ -1,7 +1,7 @@
 /* eslint-disable  global-require */
 import { Navigation } from 'react-native-navigation';
 import { Provider } from 'react-redux';
-import configureStore from './store/configureStore';
+import configureStore from './redux/configureStore';
 import { registerScreens } from './screens';
 
 const store = configureStore();
@@ -20,7 +20,7 @@ const createTabs = () => [ // returns the app's tabs
 
 Navigation.startSingleScreenApp({
  screen: {
-   screen: 'PetSpot.SingleScreen',
+   screen: 'PetSpot.Main',
    title: 'PetSpot',
    topTabs: createTabs(),
    navigatorStyle: {
@@ -36,7 +36,7 @@ Navigation.startSingleScreenApp({
  },
  drawer: {
    left: {
-     screen: 'PetSpot.SideMenu'
+     screen: 'PetSpot.Drawer'
    }
  }
 });
