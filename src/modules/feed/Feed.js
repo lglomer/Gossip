@@ -2,10 +2,9 @@
 import React, { Component } from 'react';
 import {
 	View,
-	Text,
 	Alert,
 } from 'react-native';
-import { Card } from '../_global/components';
+import { PostCard } from './components';
 
 class Feed extends Component {
 	static navigatorButtons = {
@@ -34,8 +33,7 @@ class Feed extends Component {
 		const { container } = styles;
 		return (
       <View style={container}>
-				<Text>ss</Text>
-				<Card />
+				<PostCard />
 			</View>
 		);
 	}
