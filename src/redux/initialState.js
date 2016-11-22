@@ -1,5 +1,0 @@
-export default {
-  feed: {
-    posts: []
-  }
-};

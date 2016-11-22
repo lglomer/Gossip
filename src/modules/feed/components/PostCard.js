@@ -4,22 +4,33 @@ import {
 } from 'react-native';
 import { Card, CardSection, CardHeader } from '../../_global/components';
 
+const userPic = require('../../../img/user-default.png');
+
 class PostCard extends Component {
+  // constructor(props) {
+  //   super(props);
+  // }
   render() {
-    //const {profilePic} = this.props.data;
+    //const { data } = this.props;
+    const { textStyle } = styles;
+    const { content } = this.props.post;
     return (
       <Card>
-        <CardHeader
-          image={{ uri: 'https://facebook.github.io/react/img/logo_og.png' }}
-          title="Omer Lagziel"
-          subtitle="3 minutes ago"
-        />
-        <CardSection style={{ marginLeft: 35 }}>
-          <Text>This is some awesome text</Text>
+        <CardHeader title="Omer Lagziel" subtitle="24 minutes ago" image={userPic} />
+        <CardSection>
+          <Text style={textStyle}>{content}</Text>
         </CardSection>
       </Card>
     );
   }
 }
+
+const styles = {
+  textStyle: {
+    fontSize: 13,
+    color: '#333',
+    paddingBottom: 100
+  }
+};
 
 export { PostCard };

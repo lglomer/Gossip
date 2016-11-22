@@ -29,7 +29,7 @@ const styles = {
     justifyContent: 'center'
   },
   title: {
-    color: '#000',
+    color: '#333',
     fontSize: 13,
     marginBottom: -2
   },
@@ -39,7 +39,7 @@ const styles = {
   },
   imageContainer: {
     justifyContent: 'center',
-    paddingRight: 5,
+    paddingRight: 7,
   },
   image: {
     height: 30,

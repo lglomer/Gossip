@@ -1,40 +1,58 @@
 /* eslint-disable global-require */
 import React, { Component } from 'react';
 import {
-	View,
-	Alert,
+	ListView
 } from 'react-native';
+import { connect } from 'react-redux';
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
+import _ from 'lodash';
+import * as feedActions from './reducer';
 import { PostCard } from './components';
 
 class Feed extends Component {
-	static navigatorButtons = {
-     rightButtons: [
-       {
-         title: 'Add',
-         id: 'add'
-       }
-     ]
-   };
+	constructor() {
+		super();
+		this.state = { dataSource: [] };
+	}
+	componentWillMount() {
+		this.props.fetchPosts(0, true);
+		this.createDataSource(this.props);
+	}
 
-   constructor(props) {
-     super(props);
-     // if you want to listen on navigator events, set this up
-     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-   }
+	componentWillReceiveProps(nextProps) {
+		this.createDataSource(nextProps);
+	}
 
-   onNavigatorEvent(event) {
-     if (event.id === 'add') {
-       Alert.alert('NavBar', 'Add button pressed');
-     }
-   }
+	createDataSource({ posts }) { //props.posts
+		const ds = new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		});
+		//[{ data: { content: 'cloneMe!' } }]
+		const postsDs = ds.cloneWithRows(posts);
+		this.setState({ dataSource: postsDs });
+	}
 
+	loadMore() {
+    this.props.fetchPosts(0, true);
+  }
+
+
+	renderRow(post) {
+		return <PostCard post={post} />;
+	}
 
 	render() {
 		const { container } = styles;
 		return (
-      <View style={container}>
-				<PostCard />
-			</View>
+			<ListView
+					style={container}
+					enableEmptySections
+					renderScrollComponent={props => <InfiniteScrollView {...props} />}
+					dataSource={this.state.dataSource}
+					renderRow={this.renderRow}
+					canLoadMore={this.props.canLoadMorePosts}
+					onLoadMoreAsync={() => this.loadMore()}
+			/>
 		);
 	}
 }
@@ -46,4 +64,12 @@ const styles = {
 	}
 };
 
-export default Feed;
+const mapStateToProps = state => {
+  const posts = _.map(state.feed.posts, (val, uid) => {
+    return { ...val, uid };
+  });
+
+  return { ...state.feed, posts }; // { feed's states, override posts to an array }
+};
+
+export default connect(mapStateToProps, feedActions)(Feed);

@@ -1,15 +1,39 @@
-import RETRIEVE_POPULAR_MOVIES_SUCCESSS from './actionTypes';
-import initialState from '../../redux/initialState';
+import { Alert } from 'react-native';
+import firebase from 'firebase';
 
-export default function (state = initialState.feed, action) {
+const FETCH_SUCCESS = 'petspot/feed/FETCH_SUCCESS';
+
+const initialState = {
+	isLoading: true,
+	isRefreshing: true,
+	canLoadMorePosts: true,
+	posts: {}
+};
+
+export default function (state = initialState, action) {
+	let allPosts = {}; // an object with objects
 	switch (action.type) {
+		case FETCH_SUCCESS:
+			if (action.toBottom) {
+				allPosts = { ...state.posts, ...action.posts };
+			} else {
+				allPosts = { ...action.posts, ...state.posts };
+			}
 
-		case RETRIEVE_POPULAR_MOVIES_SUCCESSS:
-			return {
-				...state,
-			posts: action.popularMovies
-			};
+			return { ...state, posts: allPosts };
+
 		default:
 			return state;
 	}
 }
+
+export const fetchPosts = (fromId, toBottom) => {
+  return (dispatch) => {
+    const ref = firebase.database().ref('/posts');
+      ref.limitToLast(3).once('value', snapshot => {
+        dispatch({ type: FETCH_SUCCESS, posts: snapshot.val(), toBottom });
+      }, (err) => {
+				Alert.alert("something went wrong.");
+			});
+  };
+};
