@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import firebase from 'firebase';
 
 const FETCH_SUCCESS = 'petspot/feed/FETCH_SUCCESS';
@@ -7,17 +6,18 @@ const initialState = {
 	isLoading: true,
 	isRefreshing: true,
 	canLoadMorePosts: true,
-	posts: {}
+	fromUid: undefined, //maybe from 0?
+	posts: []
 };
 
 export default function (state = initialState, action) {
 	let allPosts = {}; // an object with objects
 	switch (action.type) {
 		case FETCH_SUCCESS:
-			if (action.toBottom) {
-				allPosts = { ...state.posts, ...action.posts };
+			if (action.payload.toBottom) {
+				allPosts = [...state.posts, ...action.payload.posts];
 			} else {
-				allPosts = { ...action.posts, ...state.posts };
+				allPosts = [...action.payload.posts, ...state.posts];
 			}
 
 			return { ...state, posts: allPosts };
@@ -27,13 +27,22 @@ export default function (state = initialState, action) {
 	}
 }
 
-export const fetchPosts = (fromId, toBottom) => {
+export const fetchPosts = ({ fromUid = 0, toBottom = true }) => {
   return (dispatch) => {
-    const ref = firebase.database().ref('/posts');
-      ref.limitToLast(3).once('value', snapshot => {
-        dispatch({ type: FETCH_SUCCESS, posts: snapshot.val(), toBottom });
-      }, (err) => {
-				Alert.alert("something went wrong.");
+		let ref = firebase.database().ref('/posts'); //eslint-disable-line
+		let postsArr = [];
+    ref.orderByChild('reversedTimestamp').once('value', snapshot => {
+			snapshot.forEach((childSnapshot) => {
+				postsArr.push(childSnapshot.val());
 			});
+
+      dispatch({
+				type: FETCH_SUCCESS,
+				payload: {
+					posts: postsArr,
+					toBottom
+				}
+			});
+    });
   };
 };

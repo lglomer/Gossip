@@ -8,33 +8,21 @@ import { registerScreens } from './screens';
 const store = configureStore();
 registerScreens(store, Provider); // register app's screens
 
-const createTabs = () => [ // returns the app's tabs
-    {
-      screenId: 'PetSpot.Feed',
-      title: 'Feed',
-    },
-    {
-      screenId: 'PetSpot.Login',
-      title: 'Login',
-    },
-];
-
 export default class App {
   constructor() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'PetSpot.Main',
-        title: 'PetSpot',
-        topTabs: createTabs(),
+        screen: 'PetSpot.Feed',
+        title: 'Feed',
         navigatorStyle: {
           navBarTextColor: '#000000', // color of the title
           navBarButtonColor: '#444444',
-          navBarHideOnScroll: false,
         },
       },
+      portraitOnlyMode: true, // full support only on 2.0
       appStyle: {
-        tabBarBackgroundColor: '#ffffff',
-        tabBarSelectedButtonColor: '#42A5F5',
+        //tabBarBackgroundColor: '#ffffff',
+        //tabBarSelectedButtonColor: '#42A5F5',
         statusBarColor: '#009688'
       },
       drawer: {

@@ -1,7 +1,8 @@
 /* eslint-disable global-require */
 import React, { Component } from 'react';
 import {
-	ListView
+	ListView,
+	Alert
 } from 'react-native';
 import { connect } from 'react-redux';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -9,11 +10,21 @@ import _ from 'lodash';
 import * as feedActions from './reducer';
 import { PostCard } from './components';
 
+const addIcon = require('../../img/ic_add_black_48dp.png');
+
 class Feed extends Component {
-	constructor() {
-		super();
+	static navigatorButtons = {
+    rightButtons: [{
+      icon: addIcon,
+      id: 'add'
+    }]
+  };
+	constructor(props) {
+		super(props);
 		this.state = { dataSource: [] };
+		this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
 	}
+
 	componentWillMount() {
 		this.props.fetchPosts(0, true);
 		this.createDataSource(this.props);
@@ -21,6 +32,25 @@ class Feed extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		this.createDataSource(nextProps);
+	}
+
+	onNavigatorEvent(event) {
+		if (event.id === 'add') {
+			this.props.navigator.showModal({
+				screen: 'PetSpot.Publish',
+				title: 'New post',
+				// navigatorStyle: {
+				// 	navBarButtonColor: '#007aff',
+				// },
+				navigatorButtons: {},
+				appStyle: {
+					//tabBarBackgroundColor: '#ffffff',
+					//tabBarSelectedButtonColor: '#42A5F5',
+					statusBarColor: '#009688'
+				},
+				animationType: 'slide-up'
+			});
+		}
 	}
 
 	createDataSource({ posts }) { //props.posts
@@ -33,9 +63,8 @@ class Feed extends Component {
 	}
 
 	loadMore() {
-    this.props.fetchPosts(0, true);
+    this.props.fetchPosts();
   }
-
 
 	renderRow(post) {
 		return <PostCard post={post} />;
@@ -60,7 +89,7 @@ class Feed extends Component {
 const styles = {
 	container: {
 		flex: 1,
-		backgroundColor: '#f1f1f1'
+		backgroundColor: '#f1f1f1',
 	}
 };
 

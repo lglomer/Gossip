@@ -19,9 +19,9 @@ const styles = {
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
-    marginTop: 7,
+    marginTop: 5, // neccessary for the shadow to be visible
+    marginBottom: 2, // neccessary for the shadow to be visible
     paddingTop: 5,
-    paddingBottom: 5,
   }
 };
 
