@@ -28,6 +28,7 @@ class Feed extends Component {
 	componentWillMount() {
 		this.props.fetchPosts(0, true);
 		this.createDataSource(this.props);
+		console.log('componentWillMount');
 	}
 
 	componentWillReceiveProps(nextProps) {
