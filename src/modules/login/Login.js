@@ -1,40 +1,50 @@
 import React, { Component } from 'react';
 import {
-  Text,
   View,
+  Text,
   TouchableOpacity,
   StyleSheet
 } from 'react-native';
+import { connect } from 'react-redux';
+import _ from 'lodash';
+import { Card, CardSection, Input, Button } from '../_global/components';
+import * as loginActions from './reducer';
 
 class Login extends Component {
-  static navigatorButtons = {
-    leftButtons: [{
-      title: 'Close',
-      id: 'close'
-    }]
-  };
-  constructor(props) {
-    super(props);
-    // if you want to listen on navigator events, set this up
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-  }
-
-  onNavigatorEvent(event) {
-    if (event.id === 'close') {
-      this.props.navigator.dismissModal();
-    }
-  }
-
-  onClosePress() {
-    this.props.navigator.dismissModal();
+  componentWillMount() {
+    //reset state
+    _.each(this.props.post, (value, key) => { // for each post's keys:values
+      this.props.formChange({ key, value }); // set initial values from state
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={this.onClosePress.bind(this)}>
-          <Text style={styles.button}>Close Modal</Text>
-        </TouchableOpacity>
+        <Card>
+          <CardSection>
+            <Input
+              label="Email"
+              placeholder="example@mail.com"
+              value={this.props.email}
+              onChangeText={value => this.props.formChange({ key: 'email', value })}
+            />
+          </CardSection>
+
+          <CardSection>
+            <Input
+              label="Password"
+              secureTextEntry
+              placeholder="password"
+              value={this.props.password}
+              onChangeText={value => this.props.formChange({ key: 'password', value })}
+            />
+          </CardSection>
+
+          <CardSection>
+            <Button onPress={() => this.props.login()} label="Login" />
+          </CardSection>
+        </Card>
       </View>
     );
   }
@@ -46,13 +56,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20
   },
-  button: {
-    textAlign: 'center',
-    fontSize: 18,
-    marginBottom: 10,
-    marginTop: 10,
-    color: 'blue'
-  }
 });
 
-export default Login;
+const mapStateToProps = state => {
+  return { ...state.login };
+};
+
+export default connect(mapStateToProps, loginActions)(Login);

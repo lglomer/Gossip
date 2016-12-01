@@ -2,11 +2,9 @@
 import React, { Component } from 'react';
 import {
 	ListView,
-	Alert
 } from 'react-native';
 import { connect } from 'react-redux';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-import _ from 'lodash';
 import * as feedActions from './reducer';
 import { PostCard } from './components';
 
@@ -74,15 +72,15 @@ class Feed extends Component {
 	render() {
 		const { container } = styles;
 		return (
-			<ListView
-					style={container}
-					enableEmptySections
-					renderScrollComponent={props => <InfiniteScrollView {...props} />}
-					dataSource={this.state.dataSource}
-					renderRow={this.renderRow}
-					canLoadMore={this.props.canLoadMorePosts}
-					onLoadMoreAsync={() => this.loadMore()}
-			/>
+				<ListView
+						style={container}
+						enableEmptySections
+						renderScrollComponent={props => <InfiniteScrollView {...props} />}
+						dataSource={this.state.dataSource}
+						renderRow={this.renderRow}
+						canLoadMore={this.props.canLoadMorePosts}
+						onLoadMoreAsync={() => this.loadMore()}
+				/>
 		);
 	}
 }
@@ -95,11 +93,11 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  const posts = _.map(state.feed.posts, (val, uid) => {
-    return { ...val, uid };
-  });
+  // const posts = _.map(state.feed.posts, (val, uid) => {
+  //   return { ...val, uid };
+  // });// { feed's states, override posts to an array }
 
-  return { ...state.feed, posts }; // { feed's states, override posts to an array }
+  return { ...state.feed };
 };
 
 export default connect(mapStateToProps, feedActions)(Feed);

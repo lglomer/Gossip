@@ -9,6 +9,12 @@ import * as appActions from './modules/_global/reducer';
 const store = configureStore();
 registerScreens(store, Provider); // register app's screens
 
+const appStyle = {
+  statusBarColor: '#009688'
+};
+
+const portraitOnlyMode = true; // full support only on 2.0
+
 export default class App {
   constructor() {
     const config = {
@@ -19,13 +25,42 @@ export default class App {
       messagingSenderId: '282730565872'
     };
     firebase.initializeApp(config);
-    //this.startApp();
+
     // since react-redux only works on components, we need to subscribe this class manually
     store.subscribe(this.onStoreUpdate.bind(this));
     store.dispatch(appActions.appInitialized());
   }
 
-  startApp() {
+  startApp({ loginState }) {
+    switch (loginState) {
+      case 'after-login':
+        this.startFullApp();
+        break;
+
+      case 'login':
+        this.startLoginApp();
+        break;
+
+      default:
+        console.error('Unknown app root');
+    }
+  }
+
+  startLoginApp() {
+    Navigation.startSingleScreenApp({
+      screen: {
+        screen: 'PetSpot.Login',
+        title: 'Login',
+        navigatorStyle: {
+          navBarHidden: true,
+        },
+      },
+      portraitOnlyMode,
+      appStyle
+    });
+  }
+
+  startFullApp() {
     Navigation.startSingleScreenApp({
       screen: {
         screen: 'PetSpot.Feed',
@@ -35,12 +70,8 @@ export default class App {
           navBarButtonColor: '#444444',
         },
       },
-      portraitOnlyMode: true, // full support only on 2.0
-      appStyle: {
-        //tabBarBackgroundColor: '#ffffff',
-        //tabBarSelectedButtonColor: '#42A5F5',
-        statusBarColor: '#009688'
-      },
+      portraitOnlyMode,
+      appStyle,
       drawer: {
         left: {
           screen: 'PetSpot.Drawer'
@@ -52,15 +83,11 @@ export default class App {
 
   onStoreUpdate() {
     const { root } = store.getState();
-    console.log(this.currentRoot);
-
     // handle a root change
     if (this.currentRoot !== root) {
       this.currentRoot = root;
       this.startApp(root);
     }
-
-    console.log(this.currentRoot);
   }
 
   render() {

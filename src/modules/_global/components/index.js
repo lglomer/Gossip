@@ -4,3 +4,4 @@ export * from './Card/CardHeader';
 export * from './Card/CardIcon';
 export * from './Card/CardActions';
 export * from './Input';
+export * from './Button';

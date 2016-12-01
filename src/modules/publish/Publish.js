@@ -23,6 +23,7 @@ class Publish extends Component {
   }
 
   componentWillMount() {
+    //reset state
     _.each(this.props.post, (value, key) => { // for each post's keys:values
       this.props.postChange({ key, value }); // set initial values from state
     });

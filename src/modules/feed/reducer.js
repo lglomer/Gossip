@@ -27,10 +27,10 @@ export default function (state = initialState, action) {
 	}
 }
 
-export const fetchPosts = ({ fromUid = 0, toBottom = true }) => {
+export const fetchPosts = ({ toBottom }) => {
   return (dispatch) => {
 		let ref = firebase.database().ref('/posts'); //eslint-disable-line
-		let postsArr = [];
+		let postsArr = []; //eslint-disable-line
     ref.orderByChild('reversedTimestamp').once('value', snapshot => {
 			snapshot.forEach((childSnapshot) => {
 				postsArr.push(childSnapshot.val());
