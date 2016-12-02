@@ -27,14 +27,27 @@ export const postChange = ({ key, value }) => {
 };
 
 export const postPublish = ({ content }) => {
+	const { currentUser } = firebase.auth();
+
 	return (dispatch) => {
-		const ref = firebase.database().ref('/posts');
+		const postsRef = firebase.database().ref('/posts');
 		const timestamp = new Date().getTime();
-		ref.push({ content, timestamp, reversedTimestamp: 0 - timestamp })
+		postsRef.push({ content, timestamp, reversedTimestamp: 0 - timestamp })
 			.then(() => {
 				dispatch({
 					type: POST_PUBLISH_SUCCESS,
 				});
 			});
 	};
+};
+export const employeeCreate = ({ name, phone, shift }) => {
+
+  return (dispatch) => {
+    firebase.database().ref(`/users/${currentUser.uid}/employees`)
+      .push({ name, phone, shift })
+      .then(() => {
+        dispatch({ type: EMPLOYEE_CREATE });
+        Actions.employeeList({ type: 'reset' });
+      });
+  };
 };
