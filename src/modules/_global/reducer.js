@@ -1,9 +1,7 @@
-import firebase from 'firebase';
-
 const LOGIN_STATE_CHANGED = 'petspot/root/LOGIN_STATE_CHANGED';
 
 const initialState = {
-  loginState: undefined, // 'login' / 'after-login'
+  loginState: null, // 'login' / 'after-login'
 };
 
 export default function app(state = initialState, action = {}) {
@@ -16,7 +14,7 @@ export default function app(state = initialState, action = {}) {
 }
 
 export function appInitialized() {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     // since all business logic should be inside redux actions
     // this is a good place to put your app initialization code
     dispatch(changeAppRoot('login'));
@@ -30,9 +28,9 @@ export function changeAppRoot(loginState) {
   };
 }
 
-export function login() {
+export function loginUser() {
   return (dispatch) => {
-    // login logic would go here, and when it's done, we switch app roots
+    // after login logic would go here, and when it's done, we switch app roots
     dispatch(changeAppRoot('after-login'));
   };
 }

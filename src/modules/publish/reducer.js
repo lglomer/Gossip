@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import firebase from 'firebase';
 
 const POST_CHANGE = 'petspot/publish/POST_CHANGE';

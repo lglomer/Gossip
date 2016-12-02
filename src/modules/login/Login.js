@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet
 } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { Card, CardSection, Input, Button } from '../_global/components';
@@ -18,9 +17,18 @@ class Login extends Component {
     });
   }
 
+  onLoginPress() {
+    this.props.loginUser({ email: this.props.email, password: this.props.password });
+  }
+
   render() {
     return (
       <View style={styles.container}>
+        <Spinner
+          visible={this.props.loading}
+          // color={'#111'}
+          // overlayColor={'rgba(0,0,0,0.4)'}
+        />
         <Card>
           <CardSection>
             <Input
@@ -42,7 +50,10 @@ class Login extends Component {
           </CardSection>
 
           <CardSection>
-            <Button onPress={() => this.props.login()} label="Login" />
+            <Button onPress={() => this.onLoginPress()} label="Login" />
+          </CardSection>
+          <CardSection>
+            <Text>{this.props.error}</Text>
           </CardSection>
         </Card>
       </View>
@@ -50,13 +61,13 @@ class Login extends Component {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: 'white',
     padding: 20
   },
-});
+};
 
 const mapStateToProps = state => {
   return { ...state.login };

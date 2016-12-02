@@ -26,6 +26,14 @@ export default class App {
     };
     firebase.initializeApp(config);
 
+    firebase.auth().onAuthStateChanged((user) => { //on login / logout
+      if (user) {
+        store.dispatch(appActions.loginUser());
+      } else {
+        store.dispatch(appActions.appInitialized());
+      }
+    });
+
     // since react-redux only works on components, we need to subscribe this class manually
     store.subscribe(this.onStoreUpdate.bind(this));
     store.dispatch(appActions.appInitialized());

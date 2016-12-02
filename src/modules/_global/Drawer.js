@@ -3,6 +3,8 @@ import {
 	View,
 	Text
 } from 'react-native';
+import firebase from 'firebase';
+import { Button } from './components';
 
 class Drawer extends Component {
 	render() {
@@ -12,8 +14,8 @@ class Drawer extends Component {
 				<View style={menuHeader} >
 					<Text>Cool stuff goes around here</Text>
 				</View>
-				<View style={menuBody} >
-					<Text>Rock your body</Text>
+				<View style={menuBody}>
+					<Button onPress={() => { firebase.auth().signOut(); }} label="Logout" />
 				</View>
 			</View>
 		);
