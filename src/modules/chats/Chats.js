@@ -2,15 +2,17 @@
 import React, { Component } from 'react';
 import {
 	ListView,
+	View,
+	Text,
 } from 'react-native';
 import { connect } from 'react-redux';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-import * as feedActions from './reducer';
-import { PostCard } from './components';
+import * as chatActions from './reducer';
+import { ChatCard } from './components';
 
 const addIcon = require('../../img/ic_add_black_48dp.png');
 
-class Feed extends Component {
+class Chats extends Component {
 	static navigatorButtons = {
     rightButtons: [{
       icon: addIcon,
@@ -24,15 +26,14 @@ class Feed extends Component {
 	}
 
 	componentWillMount() {
-		this.props.fetchPosts(0, true);
+		this.props.fetchChatList();
 		this.createDataSource(this.props);
-		console.log('componentWillMount');
 	}
 
 	componentWillReceiveProps(nextProps) {
 		this.createDataSource(nextProps);
 	}
-
+	
 	onNavigatorEvent(event) {
 		if (event.id === 'add') {
 			this.props.navigator.showModal({
@@ -52,25 +53,37 @@ class Feed extends Component {
 		}
 	}
 
-	createDataSource({ posts }) { //props.posts
+	createDataSource({ chats }) { //props.posts
 		const ds = new ListView.DataSource({
 			rowHasChanged: (r1, r2) => r1 !== r2
 		});
 		//[{ data: { content: 'cloneMe!' } }]
-		const postsDs = ds.cloneWithRows(posts);
-		this.setState({ dataSource: postsDs });
+		console.log(chats);
+		const chatsDs = ds.cloneWithRows(chats);
+		this.setState({ dataSource: chatsDs });
 	}
 
 	loadMore() {
-    this.props.fetchPosts();
+    this.props.fetchChatList();
   }
 
-	renderRow(post) {
-		return <PostCard post={post} />;
+	renderRow(chat) {
+		return <ChatCard chat={chat} />;
 	}
 
 	render() {
 		const { container } = styles;
+		if (this.props.fetchedEmptyList) {
+			return (
+				<View style={container}>
+					<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+						<Text>Hey, where is everybody?</Text>
+					</View>
+					<View style={{ flex: 1 }} />
+				</View>
+			);
+		}
+
 		return (
 				<ListView
 						style={container}
@@ -78,7 +91,7 @@ class Feed extends Component {
 						renderScrollComponent={props => <InfiniteScrollView {...props} />}
 						dataSource={this.state.dataSource}
 						renderRow={this.renderRow}
-						canLoadMore={this.props.canLoadMorePosts}
+						canLoadMore={this.props.canLoadMoreChats}
 						onLoadMoreAsync={() => this.loadMore()}
 				/>
 		);
@@ -93,11 +106,11 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  // const posts = _.map(state.feed.posts, (val, uid) => {
+  // const chats = _.map(state.chats.posts, (val, uid) => {
   //   return { ...val, uid };
-  // });// { feed's states, override posts to an array }
+  // });// { chats' states, override posts to an array }
 
-  return { ...state.feed };
+  return { ...state.chats };
 };
 
-export default connect(mapStateToProps, feedActions)(Feed);
+export default connect(mapStateToProps, chatActions)(Chats);

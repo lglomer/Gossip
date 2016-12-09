@@ -1,3 +1,6 @@
+import { NetInfo, Alert } from 'react-native';
+import firebase from 'firebase';
+
 const LOGIN_STATE_CHANGED = 'petspot/root/LOGIN_STATE_CHANGED';
 
 const initialState = {
@@ -15,9 +18,36 @@ export default function app(state = initialState, action = {}) {
 
 export function appInitialized() {
   return function (dispatch) {
-    // since all business logic should be inside redux actions
-    // this is a good place to put your app initialization code
+    // code before login screen (app) initialization
     dispatch(changeAppRoot('login'));
+  };
+}
+
+export function loginUser() {
+  return (dispatch) => {
+    // logged in app logic would go here, and when it's done, we switch app roots
+    // runs on app start if previously logged in
+    const connectedRef = firebase.database().ref('.info/connected');
+    connectedRef.on('value', (snap) => { // on device connect event change
+      if (snap.val() === true) {
+        const { currentUser } = firebase.auth();
+        const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
+
+        userRef.child('isOnline').set(true);
+        userRef.onDisconnect().update({
+          isOnline: false,
+          lastOnline: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+    });
+    NetInfo.isConnected.fetch().then(isConnected => {
+      console.log('First, is ', (isConnected ? 'online' : 'offline'));
+    });
+    NetInfo.addEventListener('change', (connectionInfo) => {
+      Alert.alert('change: ', connectionInfo);
+    });
+
+    dispatch(changeAppRoot('after-login'));
   };
 }
 
@@ -25,12 +55,5 @@ export function changeAppRoot(loginState) {
   return {
     type: LOGIN_STATE_CHANGED,
     payload: { loginState },
-  };
-}
-
-export function loginUser() {
-  return (dispatch) => {
-    // after login logic would go here, and when it's done, we switch app roots
-    dispatch(changeAppRoot('after-login'));
   };
 }

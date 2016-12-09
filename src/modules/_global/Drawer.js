@@ -7,6 +7,18 @@ import firebase from 'firebase';
 import { Button } from './components';
 
 class Drawer extends Component {
+	logout() {
+		const { currentUser } = firebase.auth();
+		const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
+
+		userRef.update({
+			isOnline: false,
+			lastOnline: firebase.database.ServerValue.TIMESTAMP
+		});
+
+		firebase.auth().signOut();
+	}
+
 	render() {
 		const { menuContainer, menuHeader, menuBody } = styles;
 		return (
@@ -15,7 +27,7 @@ class Drawer extends Component {
 					<Text>Cool stuff goes around here</Text>
 				</View>
 				<View style={menuBody}>
-					<Button onPress={() => { firebase.auth().signOut(); }} label="Logout" />
+					<Button onPress={() => { this.logout(); }} label="Logout" />
 				</View>
 			</View>
 		);
