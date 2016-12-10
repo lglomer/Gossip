@@ -10,13 +10,14 @@ import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import * as chatActions from './reducer';
 import { ChatCard } from './components';
 
-const addIcon = require('../../img/ic_add_black_48dp.png');
+//const addIcon = require('../../img/ic_add_black_48dp.png');
 
 class Chats extends Component {
 	static navigatorButtons = {
     rightButtons: [{
-      icon: addIcon,
-      id: 'add'
+      //icon: addIcon,
+			title: 'START A CHAT',
+			id: 'add'
     }]
   };
 	constructor(props) {
@@ -33,21 +34,13 @@ class Chats extends Component {
 	componentWillReceiveProps(nextProps) {
 		this.createDataSource(nextProps);
 	}
-	
+
 	onNavigatorEvent(event) {
 		if (event.id === 'add') {
-			this.props.navigator.showModal({
-				screen: 'PetSpot.Publish',
-				title: 'New post',
-				// navigatorStyle: {
-				// 	navBarButtonColor: '#007aff',
-				// },
-				navigatorButtons: {},
-				appStyle: {
-					//tabBarBackgroundColor: '#ffffff',
-					//tabBarSelectedButtonColor: '#42A5F5',
-					statusBarColor: '#009688'
-				},
+			this.props.navigator.push({
+				screen: 'Gossip.Chatroom',
+				title: this.props.currentUser.email,
+				navigatorStyle: this.props.navigatorStyle,
 				animationType: 'slide-up'
 			});
 		}
@@ -58,7 +51,6 @@ class Chats extends Component {
 			rowHasChanged: (r1, r2) => r1 !== r2
 		});
 		//[{ data: { content: 'cloneMe!' } }]
-		console.log(chats);
 		const chatsDs = ds.cloneWithRows(chats);
 		this.setState({ dataSource: chatsDs });
 	}
@@ -71,11 +63,18 @@ class Chats extends Component {
 		return <ChatCard chat={chat} />;
 	}
 
+	renderHeader() {
+		return (
+			<Text>{this.props.currentUser.uid}</Text>
+		);
+	}
+
 	render() {
 		const { container } = styles;
 		if (this.props.fetchedEmptyList) {
 			return (
 				<View style={container}>
+					{this.renderHeader()}
 					<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 						<Text>Hey, where is everybody?</Text>
 					</View>
@@ -93,6 +92,7 @@ class Chats extends Component {
 						renderRow={this.renderRow}
 						canLoadMore={this.props.canLoadMoreChats}
 						onLoadMoreAsync={() => this.loadMore()}
+						renderHeader={this.renderHeader.bind(this)}
 				/>
 		);
 	}
@@ -101,7 +101,7 @@ class Chats extends Component {
 const styles = {
 	container: {
 		flex: 1,
-		backgroundColor: '#f1f1f1',
+		backgroundColor: '#E0E0E0',
 	}
 };
 
@@ -110,7 +110,7 @@ const mapStateToProps = state => {
   //   return { ...val, uid };
   // });// { chats' states, override posts to an array }
 
-  return { ...state.chats };
+  return { ...state.chats, currentUser: state.root.currentUser };
 };
 
 export default connect(mapStateToProps, chatActions)(Chats);

@@ -10,7 +10,13 @@ const store = configureStore();
 registerScreens(store, Provider); // register app's screens
 
 const appStyle = {
-  statusBarColor: '#009688'
+  statusBarColor: '#880E4F',
+};
+
+const navigatorStyle = {
+  navBarTextColor: '#ffffff', // color of the title
+  navBarButtonColor: '#ffffff',
+  navBarBackgroundColor: '#E91E63',
 };
 
 const portraitOnlyMode = true; // full support only on 2.0
@@ -26,11 +32,11 @@ export default class App {
     };
     firebase.initializeApp(config);
 
-    firebase.auth().onAuthStateChanged((user) => { //on login / logout
-      if (user) {
-        store.dispatch(appActions.loginUser());
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) { // login
+        store.dispatch(appActions.loginUser(user));
       } else { // logout
-        store.dispatch(appActions.appInitialized());
+        store.dispatch(appActions.logoutUser());
       }
     });
 
@@ -57,7 +63,7 @@ export default class App {
   startLoginApp() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'PetSpot.Login',
+        screen: 'Gossip.Login',
         title: 'Login',
         navigatorStyle: {
           navBarHidden: true,
@@ -71,18 +77,18 @@ export default class App {
   startFullApp() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'PetSpot.Chats',
+        screen: 'Gossip.Chats',
         title: 'Chats',
-        navigatorStyle: {
-          navBarTextColor: '#000000', // color of the title
-          navBarButtonColor: '#444444',
-        },
+        navigatorStyle,
       },
       portraitOnlyMode,
       appStyle,
+      passProps: {
+        navigatorStyle
+      },
       drawer: {
         left: {
-          screen: 'PetSpot.Drawer'
+          screen: 'Gossip.Drawer'
         }
       }
     });

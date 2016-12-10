@@ -1,17 +1,41 @@
 import React, { Component } from 'react';
-// import moment from 'moment';
+import moment from 'moment';
 import { Card, CardHeader } from '../../_global/components';
 
 const userPic = require('../../../img/user-default.png');
 
 class ChatCard extends Component {
   render() {
-    const { title } = this.props.chat;
+    const { currentChat, lastOnline, isOnline, displayName } = this.props.chat;
+
+    if (isOnline) {
+      if (currentChat) {
+        return (
+          <Card>
+            <CardHeader
+              title={displayName}
+              subtitle={'with some other people'} image={userPic}
+              //moment(timestamp).fromNow()
+            />
+          </Card>
+        );
+      }
+
+      return (
+        <Card>
+          <CardHeader
+            title={displayName}
+            subtitle={`${displayName} is waiting`} image={userPic}
+          />
+        </Card>
+      );
+    }
+
     return (
       <Card>
         <CardHeader
-          title={title}
-          subtitle="Kohav and Doron are gossiping" image={userPic}
+          title={displayName}
+          subtitle={`Last seen ${moment(lastOnline).fromNow()} ago`} image={userPic}
           //moment(timestamp).fromNow()
         />
       </Card>

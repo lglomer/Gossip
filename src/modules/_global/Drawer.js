@@ -8,15 +8,13 @@ import { Button } from './components';
 
 class Drawer extends Component {
 	logout() {
-		const { currentUser } = firebase.auth();
-		const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
-
-		userRef.update({
-			isOnline: false,
-			lastOnline: firebase.database.ServerValue.TIMESTAMP
-		});
-
-		firebase.auth().signOut();
+		this.props.logoutUser();
+		// const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
+		//
+		// userRef.update({
+		// 	isOnline: false,
+		// 	lastOnline: firebase.database.ServerValue.TIMESTAMP
+		// });
 	}
 
 	render() {

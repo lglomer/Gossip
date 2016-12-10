@@ -5,13 +5,13 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import * as publishActions from './reducer';
+import * as chatroomActions from './reducer';
 import { Input } from '../_global/components';
 
-class Publish extends Component {
+class Chatroom extends Component {
   static navigatorButtons = {
     rightButtons: [{
-      title: 'Publish',
+      title: ':',
       id: 'publish'
     }]
   };
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => {
-  return { ...state.publish };
+  return { ...state.chatroom };
 };
 
-export default connect(mapStateToProps, publishActions)(Publish);
+export default connect(mapStateToProps, chatroomActions)(Chatroom);

@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 
-const POST_CHANGE = 'petspot/publish/POST_CHANGE';
-const POST_PUBLISH_SUCCESS = 'petspot/publish/POST_PUBLISH_SUCCESS';
+const POST_CHANGE = 'petspot/chatroom/POST_CHANGE';
+const POST_PUBLISH_SUCCESS = 'petspot/chatroom/POST_PUBLISH_SUCCESS';
 
 const initialState = {
 	content: ''
@@ -39,15 +39,4 @@ export const postPublish = ({ content }) => {
 				});
 			});
 	};
-};
-export const employeeCreate = ({ name, phone, shift }) => {
-
-  return (dispatch) => {
-    firebase.database().ref(`/users/${currentUser.uid}/employees`)
-      .push({ name, phone, shift })
-      .then(() => {
-        dispatch({ type: EMPLOYEE_CREATE });
-        Actions.employeeList({ type: 'reset' });
-      });
-  };
 };
