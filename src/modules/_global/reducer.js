@@ -1,4 +1,4 @@
-// import { NetInfo, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import firebase from 'firebase';
 
 const LOGIN_STATE_CHANGED = 'petspot/root/LOGIN_STATE_CHANGED';
@@ -22,26 +22,30 @@ export function logoutUser() {
     const { currentUser } = firebase.auth();
 
     if (currentUser) {
-      const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
-      const userFriendsRef = firebase.database().ref('userFriends');
-      const friendsChatsRef = firebase.database().ref('userFriendsChats');
-
-      userFriendsRef.child(currentUser.uid).once('value', friendshot => { // fetch friends
-        friendshot.forEach(friend => { // for each friend
-          // update to offline
-          friendsChatsRef.child(friend.getKey()).child(currentUser.uid).update({
-            isOnline: false,
-            lastOnline: firebase.database.ServerValue.TIMESTAMP
-          });
-        });
-      });
-
-      userRef.update({
+      const offlineData = {
         isOnline: false,
         lastOnline: firebase.database.ServerValue.TIMESTAMP
-      });
+      };
 
-      firebase.auth().signOut();
+      let updates = {}; // eslint-disable-line
+      updates[`/users/${currentUser.uid}`] = offlineData; // update user
+
+      const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
+      friendsRef.once('value', friendshot => { // fetch friends
+        friendshot.forEach(friend => { // for each friend
+          // update my chat to offline
+          updates[`/userFriendsChats/${friend.getKey()}/${currentUser.uid}`] = offlineData;
+        });
+
+        // fan-out updates
+        firebase.database().ref().update(updates)
+        .then(() => {
+          firebase.auth().signOut();
+        })
+        .catch(() => {
+          firebase.auth().signOut();
+        });
+      });
     }
 
     dispatch(changeAppRoot('login', {}));
@@ -60,42 +64,36 @@ export function loginUser(currentUser) {
   return (dispatch) => {
     // logged in app logic would go here, and when it's done, we switch app roots
     // runs on app start if previously logged in
-    //const { currentUser } = firebase.auth();
 
-    const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
-    const connectedRef = firebase.database().ref('.info/connected');
-    const userFriendsRef = firebase.database().ref('userFriends');
-    const friendsChatsRef = firebase.database().ref('userFriendsChats');
+    let path;
+    let onlineUpdates = {};  // eslint-disable-line
+    onlineUpdates[`/users/${currentUser.uid}/isOnline`] = true;
 
-    connectedRef.on('value', (snap) => { // on device connect event change
-      if (snap.val() === true) { // online
-        userFriendsRef.child(currentUser.uid).once('value', friendshot => { // fetch friends
-          friendshot.forEach(friend => { // for each friend
-            // update to online
-            console.log(friend.getKey());
-            console.log(currentUser.uid);
-            friendsChatsRef.child(friend.getKey()).child(currentUser.uid)
-            .update({
-              isOnline: true,
-              displayName: currentUser.displayName,
-            });
+    let offlineUpdates = {};  // eslint-disable-line
+    offlineUpdates[`/users/${currentUser.uid}/isOnline`] = false;
+    offlineUpdates[`/users/${currentUser.uid}/lastOnline`] =
+      firebase.database.ServerValue.TIMESTAMP;
 
-            // onDisconnect update to offline
-            friendsChatsRef.child(friend.getKey()).child(currentUser.uid)
-            .onDisconnect().update({
-              isOnline: false,
-              lastOnline: firebase.database.ServerValue.TIMESTAMP,
-            });
-          });
-        });
+    const firebaseRef = firebase.database().ref();
+    const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
 
-        userRef.child('isOnline').set(true);
-        userRef.onDisconnect().update({
-          isOnline: false,
-          lastOnline: firebase.database.ServerValue.TIMESTAMP
-        });
-      }
+    const updateFriendsChats = (friendshot) => { // update friend's chats
+      console.log('in updateFriendsChats');
+      friendshot.forEach(friend => { // for each friend
+        path = `/userFriendsChats/${friend.getKey()}/${currentUser.uid}`;
+        // setup onlineUpdates
+        onlineUpdates[`${path}/isOnline`] = true;
+        // setup offlineUpdates
+        offlineUpdates[`${path}/isOnline`] = false;
+        offlineUpdates[`${path}/lastOnline`] = firebase.database.ServerValue.TIMESTAMP;
+      });
+    };
+
+    friendsRef.once('value', updateFriendsChats).then(() => {
+      firebaseRef.update(onlineUpdates);
+      firebaseRef.onDisconnect().update(offlineUpdates);
     });
+    //friendsRef.on('child_added', updateFriendsChats);
 
     const { email, uid } = currentUser;
     dispatch(changeAppRoot('after-login', { email, uid }));

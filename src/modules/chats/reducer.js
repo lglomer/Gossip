@@ -1,44 +1,37 @@
 import firebase from 'firebase';
 
-const FETCH_SUCCESS = 'petspot/chats/FETCH_SUCCESS';
-const FETCH_EMPTY = 'petspot/chats/FETCH_EMPTY';
-const FETCH_START = 'petspot/chats/FETCH_START';
+const FETCH_CHATS_SUCCESS = 'petspot/chats/FETCH_SUCCESS';
+const FETCH_CHATS_EMPTY = 'petspot/chats/FETCH_EMPTY';
+const FETCH_CHATS_START = 'petspot/chats/FETCH_START';
 
 const initialState = {
 	isLoading: true,
 	fetchedEmptyList: false,
 	canLoadMoreChats: true,
-	chats: []
+	chats: [],
+	contacts: []
 };
 
 export default function (state = initialState, action) {
 	switch (action.type) {
-		case FETCH_START:
+		case FETCH_CHATS_START:
 			return { ...state, isLoading: true };
-		case FETCH_SUCCESS:
+		case FETCH_CHATS_SUCCESS:
 			return { ...state, chats: action.payload.chats, isLoading: false };
-		case FETCH_EMPTY:
+		case FETCH_CHATS_EMPTY:
 			return { ...state, fetchedEmptyList: true, isLoading: false, canLoadMoreChats: false };
 		default:
 			return state;
 	}
 }
 
-const fetchUser = (userKey, callback) => {
-	firebase.database().ref(`/users/${userKey}`) // fetch friend's meta info
-		.orderByChild('isOnline')
-		.on('value', snapshot => callback(snapshot));
-};
-
 export const fetchChatList = () => {
   return (dispatch) => {
 		dispatch({
-			type: FETCH_START
+			type: FETCH_CHATS_START
 		});
 
 		let chatsArr = []; //eslint-disable-line
-		let friendKey;
-		let currentRoom;
 
 		const { currentUser } = firebase.auth();
 		const friendsChatsRef = firebase.database().ref(`/userFriendsChats/${currentUser.uid}`);
@@ -49,14 +42,14 @@ export const fetchChatList = () => {
 			if (snapshot.exists()) {
 				console.log(snapshot.val());
 				dispatch({
-					type: FETCH_SUCCESS,
+					type: FETCH_CHATS_SUCCESS,
 					payload: {
 						chats: snapshot.val(),
 					}
 				});
 			} else {
 				dispatch({
-					type: FETCH_EMPTY,
+					type: FETCH_CHATS_EMPTY,
 				});
 			}
     });

@@ -6,9 +6,9 @@ import {
 import Spinner from 'react-native-loading-spinner-overlay';
 import { connect } from 'react-redux';
 import { Card, CardSection, Input, Button } from '../_global/components';
-import * as loginActions from './reducer';
+import * as signupActions from './reducer';
 
-class Login extends Component {
+class Signup extends Component {
   // componentWillMount() {
   //   //reset state
   //   _.each(this.props.login, (value, key) => { // for each post's keys:values
@@ -16,13 +16,13 @@ class Login extends Component {
   //   });
   // }
 
-  onLoginPress() {
-    const { email, password } = this.props.login;
-    this.props.loginUser({ email, password });
+  onSignupPress() {
+    const { email, password } = this.props.signup;
+    this.props.signupUser({ email, password });
   }
 
   render() {
-    const { email, password, error, loading } = this.props.login;
+    const { fullName, email, password, error, loading } = this.props.signup;
 
     return (
       <View style={styles.container}>
@@ -43,6 +43,16 @@ class Login extends Component {
 
           <CardSection>
             <Input
+              label="Full name"
+              placeholder="John Doe"
+              value={fullName}
+              onChangeText={value => this.props.formChange({ key: 'fullName', value })}
+            />
+          </CardSection>
+
+
+          <CardSection>
+            <Input
               label="Password"
               secureTextEntry
               placeholder="password"
@@ -52,7 +62,7 @@ class Login extends Component {
           </CardSection>
 
           <CardSection>
-            <Button onPress={() => this.onLoginPress()} label="Login" type="wide" />
+            <Button onPress={() => this.onSignupPress()} label="Sign up" type="wide" />
           </CardSection>
           <CardSection>
             <Text>{error}</Text>
@@ -72,7 +82,7 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  return { login: state.login };
+  return { signup: state.signup };
 };
 
-export default connect(mapStateToProps, loginActions)(Login);
+export default connect(mapStateToProps, signupActions)(Signup);

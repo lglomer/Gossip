@@ -35,7 +35,7 @@ class ChatCard extends Component {
       <Card>
         <CardHeader
           title={displayName}
-          subtitle={`Last seen ${moment(lastOnline).fromNow()} ago`} image={userPic}
+          subtitle={`Last seen ${moment(lastOnline).fromNow()}`} image={userPic}
           //moment(timestamp).fromNow()
         />
       </Card>

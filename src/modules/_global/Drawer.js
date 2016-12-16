@@ -3,29 +3,21 @@ import {
 	View,
 	Text
 } from 'react-native';
-import firebase from 'firebase';
+import { connect } from 'react-redux';
+import * as rootActions from './reducer';
 import { Button } from './components';
 
 class Drawer extends Component {
-	logout() {
-		this.props.logoutUser();
-		// const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
-		//
-		// userRef.update({
-		// 	isOnline: false,
-		// 	lastOnline: firebase.database.ServerValue.TIMESTAMP
-		// });
-	}
 
 	render() {
 		const { menuContainer, menuHeader, menuBody } = styles;
 		return (
       <View style={menuContainer}>
 				<View style={menuHeader} >
-					<Text>Cool stuff goes around here</Text>
+					<Text>{this.props.currentUser.uid}</Text>
 				</View>
 				<View style={menuBody}>
-					<Button onPress={() => { this.logout(); }} label="Logout" />
+					<Button onPress={this.props.logoutUser.bind(this)} label="Logout" />
 				</View>
 			</View>
 		);
@@ -39,7 +31,7 @@ const styles = {
 		flex: 1
 	},
 	menuHeader: {
-		backgroundColor: 'steelblue',
+		backgroundColor: '#BDBDBD',
 		flex: 3
 	},
 	menuBody: {
@@ -48,4 +40,8 @@ const styles = {
 	},
 };
 
-export default Drawer;
+const mapStateToProps = state => {
+  return { ...state.root };
+};
+
+export default connect(mapStateToProps, rootActions)(Drawer);

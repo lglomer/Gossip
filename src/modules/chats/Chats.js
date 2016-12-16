@@ -4,6 +4,7 @@ import {
 	ListView,
 	View,
 	Text,
+	Alert,
 } from 'react-native';
 import { connect } from 'react-redux';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -63,23 +64,12 @@ class Chats extends Component {
 		return <ChatCard chat={chat} />;
 	}
 
-	renderHeader() {
-		return (
-			<Text>{this.props.currentUser.uid}</Text>
-		);
-	}
-
 	render() {
 		const { container } = styles;
 		if (this.props.fetchedEmptyList) {
+			console.log(this.props.contacts);
 			return (
-				<View style={container}>
-					{this.renderHeader()}
-					<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-						<Text>Hey, where is everybody?</Text>
-					</View>
-					<View style={{ flex: 1 }} />
-				</View>
+				<Text>Lonely</Text>
 			);
 		}
 
@@ -92,7 +82,6 @@ class Chats extends Component {
 						renderRow={this.renderRow}
 						canLoadMore={this.props.canLoadMoreChats}
 						onLoadMoreAsync={() => this.loadMore()}
-						renderHeader={this.renderHeader.bind(this)}
 				/>
 		);
 	}

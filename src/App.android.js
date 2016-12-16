@@ -1,5 +1,6 @@
 /* eslint-disable  global-require */
 import { Navigation } from 'react-native-navigation';
+import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
 import configureStore from './redux/configureStore';
@@ -35,13 +36,19 @@ export default class App {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) { // login
         store.dispatch(appActions.loginUser(user));
-      } else { // logout
-        store.dispatch(appActions.logoutUser());
+      } else if (!store.getState().root.currentUser) { // if null
+        store.dispatch(appActions.appInitialized());
       }
+
+      /* appActions.logoutUser() is called manually, as we need to be
+          authenticated to run the queries within it.
+          firebase.auth().signOut() is only called inside of appActions.logoutUser()
+       */
     });
 
     // since react-redux only works on components, we need to subscribe this class manually
     store.subscribe(this.onStoreUpdate.bind(this));
+
     //store.dispatch(appActions.appInitialized());
   }
 
@@ -63,14 +70,11 @@ export default class App {
   startLoginApp() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'Gossip.Login',
-        title: 'Login',
-        navigatorStyle: {
-          navBarHidden: true,
-        },
+        screen: 'Gossip.Welcome',
+        title: 'Welcome',
       },
+      appStyle,
       portraitOnlyMode,
-      appStyle
     });
   }
 
