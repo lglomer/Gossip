@@ -22,27 +22,23 @@ export function logoutUser() {
     const { currentUser } = firebase.auth();
 
     if (currentUser) {
-      const offlineData = {
-        isOnline: false,
-        lastOnline: firebase.database.ServerValue.TIMESTAMP
-      };
-
+      let path;
       let updates = {}; // eslint-disable-line
-      updates[`/users/${currentUser.uid}`] = offlineData; // update user
+      updates[`/users/${currentUser.uid}/isOnline`] = false;
+      updates[`/users/${currentUser.uid}/lastOnline`] = firebase.database.ServerValue.TIMESTAMP;
 
       const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
       friendsRef.once('value', friendshot => { // fetch friends
         friendshot.forEach(friend => { // for each friend
           // update my chat to offline
-          updates[`/userFriendsChats/${friend.getKey()}/${currentUser.uid}`] = offlineData;
+          path = `/userFriendsChats/${friend.getKey()}/${currentUser.uid}`;
+          updates[`${path}/isOnline`] = false;
+          updates[`${path}/lastOnline`] = firebase.database.ServerValue.TIMESTAMP;
         });
 
         // fan-out updates
         firebase.database().ref().update(updates)
         .then(() => {
-          firebase.auth().signOut();
-        })
-        .catch(() => {
           firebase.auth().signOut();
         });
       });
@@ -78,7 +74,6 @@ export function loginUser(currentUser) {
     const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
 
     const updateFriendsChats = (friendshot) => { // update friend's chats
-      console.log('in updateFriendsChats');
       friendshot.forEach(friend => { // for each friend
         path = `/userFriendsChats/${friend.getKey()}/${currentUser.uid}`;
         // setup onlineUpdates

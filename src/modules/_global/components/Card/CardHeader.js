@@ -4,6 +4,18 @@ import { CardSection } from './CardSection';
 
 const CardHeader = (props) => {
   const { cardHeader, title, subtitle, image, imageContainer, titlesContainer } = styles;
+  const renderSubtitle = () => {
+    if (props.renderSubtitle) {
+      return props.renderSubtitle(subtitle);
+    }
+
+    return (
+      <Text style={subtitle}>
+        {props.subtitle}
+      </Text>
+    );
+  };
+
   return (
     <CardSection style={[cardHeader, props.style]}>
       <View style={imageContainer}>
@@ -13,9 +25,7 @@ const CardHeader = (props) => {
         <Text style={title}>
           {props.title}
         </Text>
-        <Text style={subtitle}>
-          {props.subtitle}
-        </Text>
+        {renderSubtitle()}
       </View>
     </CardSection>
   );

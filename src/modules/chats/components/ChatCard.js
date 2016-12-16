@@ -1,10 +1,21 @@
 import React, { Component } from 'react';
-import moment from 'moment';
+import { Text, View } from 'react-native';
+import TimeAgo from 'react-native-timeago';
 import { Card, CardHeader } from '../../_global/components';
 
 const userPic = require('../../../img/user-default.png');
 
 class ChatCard extends Component {
+  renderSubtitle(style) {
+    return (
+      <View>
+        <Text style={style}>
+          Last seen <TimeAgo time={this.props.chat.lastOnline} />
+        </Text>
+      </View>
+    );
+  }
+
   render() {
     const { currentChat, lastOnline, isOnline, displayName } = this.props.chat;
 
@@ -14,7 +25,8 @@ class ChatCard extends Component {
           <Card>
             <CardHeader
               title={displayName}
-              subtitle={'with some other people'} image={userPic}
+              subtitle={'with some other people'}
+              image={userPic}
               //moment(timestamp).fromNow()
             />
           </Card>
@@ -25,7 +37,8 @@ class ChatCard extends Component {
         <Card>
           <CardHeader
             title={displayName}
-            subtitle={`${displayName} is waiting`} image={userPic}
+            subtitle={`${displayName} is spectating`}
+            image={userPic}
           />
         </Card>
       );
@@ -35,7 +48,8 @@ class ChatCard extends Component {
       <Card>
         <CardHeader
           title={displayName}
-          subtitle={`Last seen ${moment(lastOnline).fromNow()}`} image={userPic}
+          renderSubtitle={this.renderSubtitle.bind(this)}
+          image={userPic}
           //moment(timestamp).fromNow()
         />
       </Card>
