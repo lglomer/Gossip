@@ -53,7 +53,7 @@ const styles = {
   },
 
   buttonWide: {
-    flex: 1,
+    //flex: 1,
     backgroundColor: '#FFF',
     borderWidth: 2,
     borderColor: '#f9f9f9'

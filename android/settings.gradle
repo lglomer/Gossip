@@ -1,4 +1,4 @@
-rootProject.name = 'PetSpot'
+rootProject.name = 'Gossip'
 
 include ':app'
 include ':react-native-navigation'

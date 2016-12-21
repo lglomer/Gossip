@@ -54,12 +54,16 @@ export default class App {
 
   startApp({ loginState }) {
     switch (loginState) {
-      case 'after-login':
+      case 'app':
         this.startFullApp();
         break;
 
-      case 'login':
-        this.startLoginApp();
+      case 'welcome':
+        this.startWelcomeApp();
+        break;
+
+      case 'signup-finish':
+        this.startFinishSignupApp();
         break;
 
       default:
@@ -67,11 +71,22 @@ export default class App {
     }
   }
 
-  startLoginApp() {
+  startWelcomeApp() {
     Navigation.startSingleScreenApp({
       screen: {
         screen: 'Gossip.Welcome',
         title: 'Welcome',
+      },
+      appStyle,
+      portraitOnlyMode,
+    });
+  }
+
+  startFinishSignupApp() {
+    Navigation.startSingleScreenApp({
+      screen: {
+        screen: 'Gossip.SignupFinish',
+        title: 'Finish Signup',
       },
       appStyle,
       portraitOnlyMode,
@@ -92,7 +107,10 @@ export default class App {
       },
       drawer: {
         left: {
-          screen: 'Gossip.Drawer'
+          screen: 'Gossip.Drawer',
+          passProps: {
+            navigatorStyle
+          },
         }
       }
     });

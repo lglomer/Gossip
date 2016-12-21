@@ -60,8 +60,17 @@ class Chats extends Component {
     this.props.fetchChatList();
   }
 
+	enterChat(chat) {
+		this.props.navigator.push({
+			screen: 'Gossip.Chatroom',
+			title: 'chat.displayName',
+			navigatorStyle: this.props.navigatorStyle,
+			animationType: 'slide-up',
+		});
+	}
+
 	renderRow(chat) {
-		return <ChatCard chat={chat} />;
+		return <ChatCard chat={chat} onPress={() => this.enterChat(chat)} />;
 	}
 
 	render() {
@@ -69,7 +78,7 @@ class Chats extends Component {
 		if (this.props.fetchedEmptyList) {
 			console.log(this.props.contacts);
 			return (
-				<Text>Lonely</Text>
+				<Text>Cold Outside</Text>
 			);
 		}
 
@@ -79,7 +88,7 @@ class Chats extends Component {
 						enableEmptySections
 						renderScrollComponent={props => <InfiniteScrollView {...props} />}
 						dataSource={this.state.dataSource}
-						renderRow={this.renderRow}
+						renderRow={this.renderRow.bind(this)}
 						canLoadMore={this.props.canLoadMoreChats}
 						onLoadMoreAsync={() => this.loadMore()}
 				/>

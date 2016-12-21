@@ -7,15 +7,23 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { connect } from 'react-redux';
 import { Card, CardSection, Input, Button } from '../_global/components';
 import * as signupActions from './reducer';
+import * as rootActions from '../_global/reducer';
 
-class Signup extends Component {
+class SignupFinish extends Component {
+  componentWillReceiveProps(props) {
+    if (props.signup.signupFinished) {
+      props.loggedInUser(); // signup action
+      props.loginUser(); // root action
+    }
+  }
+
   onSignupPress() {
-    const { email, password } = this.props.signup;
-    this.props.signupUser({ email, password });
+    const { displayName } = this.props.signup;
+    this.props.finishSignup({ displayName });
   }
 
   render() {
-    const { email, password, error, loading } = this.props.signup;
+    const { displayName, error, loading } = this.props.signup;
 
     return (
       <View style={styles.container}>
@@ -27,25 +35,16 @@ class Signup extends Component {
         <Card>
           <CardSection>
             <Input
-              label="Email"
-              placeholder="example@mail.com"
-              value={email}
-              onChangeText={value => this.props.formChange({ key: 'email', value })}
+              label="Full name"
+              placeholder="John Doe"
+              value={displayName}
+              onChangeText={value => this.props.formChange({ key: 'displayName', value })}
             />
           </CardSection>
 
-          <CardSection>
-            <Input
-              label="Password"
-              secureTextEntry
-              placeholder="password"
-              value={password}
-              onChangeText={value => this.props.formChange({ key: 'password', value })}
-            />
-          </CardSection>
 
           <CardSection>
-            <Button onPress={() => this.onSignupPress()} label="Sign up" type="wide" />
+            <Button onPress={() => this.onSignupPress()} label="Finish" type="wide" />
           </CardSection>
           <CardSection>
             <Text>{error}</Text>
@@ -68,4 +67,4 @@ const mapStateToProps = state => {
   return { signup: state.signup };
 };
 
-export default connect(mapStateToProps, signupActions)(Signup);
+export default connect(mapStateToProps, { ...signupActions, ...rootActions })(SignupFinish);

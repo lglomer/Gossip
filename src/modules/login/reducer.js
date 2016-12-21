@@ -1,10 +1,10 @@
 import firebase from 'firebase';
 
-const FORM_CHANGE = 'petspot/login/FORM_CHANGE';
-const LOGIN_BEGIN = 'petspot/login/LOGIN_BEGIN';
-const LOGIN_SUCCESS = 'petspot/login/LOGIN_SUCCESS';
-const LOGIN_FAIL = 'petspot/login/LOGIN_FAIL';
-// const SIGNOUT_SUCCESS = 'petspot/login/SIGNOUT_SUCCESS';
+const FORM_CHANGE = 'gossip/login/FORM_CHANGE';
+const LOGIN_BEGIN = 'gossip/login/LOGIN_BEGIN';
+const LOGIN_SUCCESS = 'gossip/login/LOGIN_SUCCESS';
+const LOGIN_FAIL = 'gossip/login/LOGIN_FAIL';
+// const SIGNOUT_SUCCESS = 'gossip/login/SIGNOUT_SUCCESS';
 
 const initialState = {
 	email: '',

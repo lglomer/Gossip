@@ -5,19 +5,27 @@ import { Card, CardSection } from '../../_global/components';
 
 const userPic = require('../../../img/user-default.png');
 
-class ChatCard extends Component {
+class FriendCard extends Component {
   renderSubtitle() {
-    return (
-      <View>
+    const { isOnline, lastOnline } = this.props.friend;
+
+    if (isOnline) {
+      return (
         <Text style={styles.subtitle}>
-          Last seen <TimeAgo time={this.props.chat.lastOnline} />
+          Spectating
         </Text>
-      </View>
+      );
+    }
+
+    return (
+      <Text style={styles.subtitle}>
+        Last seen <TimeAgo time={lastOnline} />
+      </Text>
     );
   }
 
   render() {
-    const { displayName, picURL } = this.props.chat;
+    const { displayName, picURL } = this.props.friend;
     const { cardHeader, title, image, imageContainer, titlesContainer } = styles;
 
     return (
@@ -68,4 +76,4 @@ const styles = {
   },
 };
 
-export { ChatCard };
+export { FriendCard };

@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 
-const POST_CHANGE = 'petspot/chatroom/POST_CHANGE';
-const POST_PUBLISH_SUCCESS = 'petspot/chatroom/POST_PUBLISH_SUCCESS';
+const POST_CHANGE = 'gossip/chatroom/POST_CHANGE';
+const POST_PUBLISH_SUCCESS = 'gossip/chatroom/POST_PUBLISH_SUCCESS';
 
 const initialState = {
 	content: ''

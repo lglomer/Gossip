@@ -1,15 +1,16 @@
-import { Alert } from 'react-native';
 import firebase from 'firebase';
 
-const FORM_CHANGE = 'petspot/signup/FORM_CHANGE';
-const SIGNUP_BEGIN = 'petspot/signup/SIGNUP_BEGIN';
-const SIGNUP_SUCCESS = 'petspot/signup/SIGNUP_SUCCESS';
-const SIGNUP_FAIL = 'petspot/signup/SIGNUP_FAIL';
+const FORM_CHANGE = 'gossip/signup/FORM_CHANGE';
+const SIGNUP_BEGIN = 'gossip/signup/SIGNUP_BEGIN';
+const SIGNUP_SUCCESS = 'gossip/signup/SIGNUP_SUCCESS';
+const SIGNUP_FINISHED = 'gossip/signup/SIGNUP_FINISHED';
+const SIGNUP_FAIL = 'gossip/signup/SIGNUP_FAIL';
 
 const initialState = {
-	fullName: '',
+	displayName: '',
 	email: '',
 	password: '',
+	signupFinished: false,
 	loading: false,
 	error: '',
 };
@@ -22,10 +23,10 @@ export default function (state = initialState, action) {
 			return { ...state, loading: true, error: '' };
 		case SIGNUP_SUCCESS:
 			return { ...state, ...initialState };
+		case SIGNUP_FINISHED:
+			return { ...state, ...initialState, signupFinished: true };
 		case SIGNUP_FAIL:
       return { ...state, error: action.payload.error, password: '', loading: false };
-		// case SIGNOUT_SUCCESS:
-		// 	return { ...state, ...initialState };
 		default:
 			return state;
 	}
@@ -38,24 +39,54 @@ export const formChange = ({ key, value }) => {
 	};
 };
 
-export const signupUser = ({ email, password, displayName }) => {
+export const loggedInUser = () => {
+	return (dispatch) => {
+		dispatch({
+			type: SIGNUP_SUCCESS
+		});
+	};
+};
+
+export const finishSignup = ({ displayName }) => {
+	return (dispatch) => {
+		dispatch({ type: SIGNUP_BEGIN });
+
+		const { currentUser } = firebase.auth();
+		const userRef = firebase.database().ref(`/users/${currentUser.uid}`);
+
+		currentUser.updateProfile({ displayName })
+		.then(() => {
+			userRef.update({
+				signupFinished: true,
+				isBanned: false,
+				displayName: currentUser.displayName
+			})
+			.then(() => {
+				dispatch({ type: SIGNUP_FINISHED });
+			})
+			.catch((err) => {
+				dispatch({
+					type: SIGNUP_FAIL,
+					payload: { error: err }
+				});
+			});
+		})
+		.catch((err) => {
+			dispatch({
+				type: SIGNUP_FAIL,
+				payload: { error: err }
+			});
+		});
+	};
+};
+
+export const signupUser = ({ email, password }) => {
 	return (dispatch) => {
 		dispatch({ type: SIGNUP_BEGIN });
 
 		firebase.auth().createUserWithEmailAndPassword(email, password)
 			.then(() => {
-				const { currentUser } = firebase.auth();
-				currentUser.updateProfile({
-					displayName
-				})
-				.then(() => {
-					dispatch({
-						type: SIGNUP_SUCCESS
-					});
-				})
-				.catch(() => {
-					Alert.alert('No display name');
-				});
+				dispatch({ type: SIGNUP_SUCCESS });
 			})
 			.catch((err) => {
 				let errorMessage = '';

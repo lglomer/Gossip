@@ -8,11 +8,13 @@ import _ from 'lodash';
 import * as chatroomActions from './reducer';
 import { Input } from '../_global/components';
 
+const moreIcon = require('../../img/ic_add_black_48dp.png');
+
 class Chatroom extends Component {
   static navigatorButtons = {
     rightButtons: [{
-      title: ':',
-      id: 'publish'
+      icon: moreIcon,
+      id: 'more'
     }]
   };
 
@@ -30,9 +32,8 @@ class Chatroom extends Component {
   }
 
   onNavigatorEvent(event) {
-    if (event.id === 'publish') {
-      this.props.postPublish({ content: this.props.content });
-      this.props.navigator.dismissModal();
+    if (event.id === 'more') {
+      //
     }
   }
 

@@ -1,8 +1,8 @@
 import firebase from 'firebase';
 
-const FETCH_CHATS_SUCCESS = 'petspot/chats/FETCH_SUCCESS';
-const FETCH_CHATS_EMPTY = 'petspot/chats/FETCH_EMPTY';
-const FETCH_CHATS_START = 'petspot/chats/FETCH_START';
+const FETCH_CHATS_SUCCESS = 'gossip/chats/FETCH_SUCCESS';
+const FETCH_CHATS_EMPTY = 'gossip/chats/FETCH_EMPTY';
+const FETCH_CHATS_START = 'gossip/chats/FETCH_START';
 
 const initialState = {
 	isLoading: true,
@@ -34,13 +34,12 @@ export const fetchChatList = () => {
 		let chatsArr = []; //eslint-disable-line
 
 		const { currentUser } = firebase.auth();
-		const friendsChatsRef = firebase.database().ref(`/userFriendsChats/${currentUser.uid}`);
+		const userFriendsChatsRef = firebase.database().ref(`/userFriendsChats/${currentUser.uid}`);
 
-    friendsChatsRef.orderByChild('isOnline').on('value', snapshot => {
-			// should it be on value or on child_added / removed?
+    userFriendsChatsRef.orderByChild('dateCreated').on('value', snapshot => {
+			// should it be on value or on child_added / changed (removed)?
 			// if the latter how will we know from where to remove the child?
 			if (snapshot.exists()) {
-				console.log(snapshot.val());
 				dispatch({
 					type: FETCH_CHATS_SUCCESS,
 					payload: {

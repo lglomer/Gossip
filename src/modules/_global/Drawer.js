@@ -8,6 +8,14 @@ import * as rootActions from './reducer';
 import { Button } from './components';
 
 class Drawer extends Component {
+	goToFriends() {
+		this.props.navigator.push({
+			screen: 'Gossip.Friends',
+			title: 'Friends',
+			navigatorStyle: this.props.navigatorStyle,
+			animationType: 'slide-up',
+		});
+	}
 
 	render() {
 		const { menuContainer, menuHeader, menuBody } = styles;
@@ -17,7 +25,8 @@ class Drawer extends Component {
 					<Text>{this.props.currentUser.uid}</Text>
 				</View>
 				<View style={menuBody}>
-					<Button onPress={this.props.logoutUser.bind(this)} label="Logout" />
+					<Button onPress={this.props.logoutUser.bind(this)} type="wide" label="Logout" />
+					<Button onPress={this.goToFriends.bind(this)} type="wide" label="Friends" />
 				</View>
 			</View>
 		);

@@ -10,11 +10,11 @@ registerScreens(store, Provider); // register app's screens
 
 const createTabs = () => [ // returns the app's tabs
     {
-      screenId: 'PetSpot.Feed',
+      screenId: 'Gossip.Feed',
       title: 'Feed',
     },
     {
-      screenId: 'PetSpot.Login',
+      screenId: 'Gossip.Login',
       title: 'Login',
     },
 ];
@@ -23,8 +23,8 @@ export default class App {
   constructor() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'PetSpot.Main',
-        title: 'PetSpot',
+        screen: 'Gossip.Main',
+        title: 'Gossip',
         topTabs: createTabs(),
         navigatorStyle: {
           navBarTextColor: '#000000', // color of the title
@@ -40,7 +40,7 @@ export default class App {
       },
       drawer: {
         left: {
-          screen: 'PetSpot.Drawer'
+          screen: 'Gossip.Drawer'
         }
       }
     });
@@ -49,9 +49,9 @@ export default class App {
     //store.subscribe(this.onStoreUpdate.bind(this));
     const config = {
       apiKey: 'AIzaSyBck2LzNSsU9zUUnhBbtKJ0tS54QtQ0SsQ',
-      authDomain: 'petspot1.firebaseapp.com',
-      databaseURL: 'https://petspot1.firebaseio.com',
-      storageBucket: 'petspot1.appspot.com',
+      authDomain: 'gossip1.firebaseapp.com',
+      databaseURL: 'https://gossip1.firebaseio.com',
+      storageBucket: 'gossip1.appspot.com',
       messagingSenderId: '282730565872'
     };
 
