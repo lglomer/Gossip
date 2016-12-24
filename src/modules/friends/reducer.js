@@ -1,4 +1,5 @@
 import firebase from 'firebase';
+import _ from 'lodash';
 
 const FETCH_FRIENDS_SUCCESS = 'gossip/friends/FETCH_SUCCESS';
 const FETCH_FRIENDS_EMPTY = 'gossip/friends/FETCH_EMPTY';
@@ -40,8 +41,6 @@ export const fetchFriendsList = () => {
 			type: FETCH_FRIENDS_START
 		});
 
-		let friendsArr = []; //eslint-disable-line
-
 		const { currentUser } = firebase.auth();
 		const onlineFriendsRef = firebase.database().ref(`/userOnlineFriends/${currentUser.uid}`);
 
@@ -49,10 +48,14 @@ export const fetchFriendsList = () => {
 			// should it be on value or on child_added / removed?
 			// if the latter how will we know from where to remove the child?
 			if (snapshot.exists()) {
+				const friendsList = _.map(snapshot.val(), (val, uid) => {
+					return { ...val, id: uid };
+				});
+
 				dispatch({
 					type: FETCH_FRIENDS_SUCCESS,
 					payload: {
-						friendsList: snapshot.val(),
+						friendsList
 					}
 				});
 			} else {

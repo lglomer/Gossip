@@ -65,13 +65,20 @@ export function loginUser(user) {
     }
 
     let val;
-    let path;
     let onlineUpdates = {};  // eslint-disable-line
     let offlineUpdates = {};  // eslint-disable-line
     const { email, uid } = currentUser;
     const firebaseRef = firebase.database().ref();
     const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
     const userRef = firebase.database().ref(`users/${currentUser.uid}`);
+
+    const setUpdatesByPath = (updatePath) => {
+      // online updates
+      onlineUpdates[`${updatePath}/isOnline`] = true;
+      // offline updates
+      offlineUpdates[`${updatePath}/isOnline`] = false;
+      offlineUpdates[`${updatePath}/lastOnline`] = firebase.database.ServerValue.TIMESTAMP;
+    };
 
     // Check if signup is finished. If not open signupFinish screen.
     userRef.once('value', snapshot => {
@@ -81,22 +88,15 @@ export function loginUser(user) {
           changeAppRoot('signup-finish', { email, uid })
         );
       } else {
-        // online updates
-        onlineUpdates[`/users/${currentUser.uid}/isOnline`] = true;
-        // offline updates
-        offlineUpdates[`/users/${currentUser.uid}/isOnline`] = false;
-        offlineUpdates[`/users/${currentUser.uid}/lastOnline`] =
-          firebase.database.ServerValue.TIMESTAMP;
+        setUpdatesByPath(`/users/${currentUser.uid}`);
 
         // function to update friend's chats
         const updateFriendsChats = (friendshot) => {
           friendshot.forEach(friend => { // for each friend
-            path = `/userOnlineFriends/${friend.getKey()}/${currentUser.uid}`;
-            // online updates
-            onlineUpdates[`${path}/isOnline`] = true;
-            // offline updates
-            offlineUpdates[`${path}/isOnline`] = false;
-            offlineUpdates[`${path}/lastOnline`] = firebase.database.ServerValue.TIMESTAMP;
+            setUpdatesByPath(`/userOnlineFriends/${friend.getKey()}/${currentUser.uid}`);
+
+            //const key = firebase.database().ref(`/userFriendsChats/${friend.getKey()}`).push().key; //eslint-disable-line
+            //setUpdatesByPath(`/userFriendsChats/${friend.getKey()}/${key}/members/${currentUser.uid}`); //eslint-disable-line
           });
         };
 
@@ -106,6 +106,7 @@ export function loginUser(user) {
           firebaseRef.onDisconnect().update(offlineUpdates);
         });
         ////friendsRef.on('child_added', updateFriendsChats);
+        //^^BAD^^, in case of new friend added, will handle manually when adding the friend.
 
         dispatch(changeAppRoot('app', { email, uid }));
       }

@@ -2,9 +2,8 @@
 import React, { Component } from 'react';
 import {
 	ListView,
-	View,
 	Text,
-	Alert,
+	View
 } from 'react-native';
 import { connect } from 'react-redux';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -63,9 +62,10 @@ class Chats extends Component {
 	enterChat(chat) {
 		this.props.navigator.push({
 			screen: 'Gossip.Chatroom',
-			title: 'chat.displayName',
+			title: 'Chatroom',
 			navigatorStyle: this.props.navigatorStyle,
 			animationType: 'slide-up',
+			passProps: { chat }
 		});
 	}
 
@@ -73,26 +73,47 @@ class Chats extends Component {
 		return <ChatCard chat={chat} onPress={() => this.enterChat(chat)} />;
 	}
 
-	render() {
-		const { container } = styles;
-		if (this.props.fetchedEmptyList) {
-			console.log(this.props.contacts);
-			return (
-				<Text>Cold Outside</Text>
-			);
-		}
-
+	renderListScreen() {
 		return (
-				<ListView
-						style={container}
-						enableEmptySections
-						renderScrollComponent={props => <InfiniteScrollView {...props} />}
-						dataSource={this.state.dataSource}
-						renderRow={this.renderRow.bind(this)}
-						canLoadMore={this.props.canLoadMoreChats}
-						onLoadMoreAsync={() => this.loadMore()}
-				/>
+			<ListView
+					style={styles.container}
+					enableEmptySections
+					renderScrollComponent={props => <InfiniteScrollView {...props} />}
+					dataSource={this.state.dataSource}
+					renderRow={this.renderRow.bind(this)}
+					canLoadMore={this.props.canLoadMoreChats}
+					onLoadMoreAsync={() => this.loadMore()}
+			/>
 		);
+	}
+
+	renderEmptyListScreen() {
+		const { headMessage, container, centerChildren } = styles;
+		return (
+			<View style={[container, centerChildren]}>
+				<Text style={headMessage}>{'Looks like you\'re the hottest person in the room!'}</Text>
+			</View>
+		);
+	}
+
+	renderLoadingScreen() {
+		const { headMessage, container, centerChildren } = styles;
+		return (
+			<View style={[container, centerChildren]}>
+				<Text style={headMessage}>{'Looking for awesome people...'}</Text>
+			</View>
+		);
+	}
+
+	render() {
+		switch (this.props.fetchedEmptyList) {
+			case true:
+				return this.renderEmptyListScreen();
+			case false:
+				return this.renderListScreen();
+			default:
+				return this.renderLoadingScreen();
+		}
 	}
 }
 
@@ -100,6 +121,17 @@ const styles = {
 	container: {
 		flex: 1,
 		backgroundColor: '#E0E0E0',
+	},
+	centerChildren: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: 40
+	},
+	headMessage: {
+		fontSize: 18,
+		fontWeight: '500',
+		textAlign: 'center',
+		color: '#444'
 	}
 };
 
@@ -107,7 +139,6 @@ const mapStateToProps = state => {
   // const chats = _.map(state.chats.posts, (val, uid) => {
   //   return { ...val, uid };
   // });// { chats' states, override posts to an array }
-
   return { ...state.chats, currentUser: state.root.currentUser };
 };
 

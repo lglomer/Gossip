@@ -8,6 +8,10 @@ import * as rootActions from './reducer';
 import { Button } from './components';
 
 class Drawer extends Component {
+	closeDrawer() {
+		this.props.navigator.toggleDrawer({ side: 'left' });
+	}
+
 	goToFriends() {
 		this.props.navigator.push({
 			screen: 'Gossip.Friends',
@@ -15,6 +19,7 @@ class Drawer extends Component {
 			navigatorStyle: this.props.navigatorStyle,
 			animationType: 'slide-up',
 		});
+		this.closeDrawer();
 	}
 
 	render() {

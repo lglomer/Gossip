@@ -15,7 +15,7 @@ class Friends extends Component {
     rightButtons: [{
 			title: '+',
 			id: 'add'
-    }]
+    }],
   };
 
 	componentWillMount() {
@@ -36,9 +36,13 @@ class Friends extends Component {
 	enterChat(friend) {
 		this.props.navigator.push({
 			screen: 'Gossip.Chatroom',
-			title: 'chat.displayName',
+			title: friend.displayName,
 			navigatorStyle: this.props.navigatorStyle,
 			animationType: 'slide-up',
+			backButtonHidden: true,
+			passProps: {
+				friend
+			}
 		});
 	}
 

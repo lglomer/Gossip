@@ -5,8 +5,8 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { GiftedChat } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
-import { Input } from '../_global/components';
 
 const moreIcon = require('../../img/ic_add_black_48dp.png');
 
@@ -14,8 +14,13 @@ class Chatroom extends Component {
   static navigatorButtons = {
     rightButtons: [{
       icon: moreIcon,
-      id: 'more'
-    }]
+      title: 'LEAVE',
+      id: 'leave'
+    }],
+    // leftButtons: [{
+    //   icon: moreIcon,
+    //   id: 'leave'
+    // }]
   };
 
   constructor(props) {
@@ -25,29 +30,48 @@ class Chatroom extends Component {
   }
 
   componentWillMount() {
-    //reset state
-    _.each(this.props.post, (value, key) => { // for each post's keys:values
-      this.props.postChange({ key, value }); // set initial values from state
-    });
+    //TODO: reset state
+    if (this.props.chat) {
+      this.props.enterExistingChat(this.props.chat.id);
+    } else if (this.props.friend) {
+      this.props.initChatWithFriend(this.props.friend);
+    }
+
+    this.props.subscribeToMessages({ chatId: this.props.chatId });
   }
 
   onNavigatorEvent(event) {
-    if (event.id === 'more') {
-      //
+    if (event.id === 'leave') {
+      this.props.navigator.pop();
+      this.props.leaveChat(this.props.chatId);
     }
   }
+
+  onSend(message) {
+    this.props.sendMessage({ message, chatId: this.props.chatId });
+  }
+
+  // onLoadEarlier() {
+  //   this.props.fetchMessages({
+  //     chatId: this.props.chatId,
+  //     lastMessageKey: this.props.lastMessageKey
+  //   });
+  // }
 
 
   render() {
     return (
-      <View style={styles.container}>
-        <Input
-          label="Post"
-          placeholder="What's on your mind?"
-          value={this.props.content}
-          onChangeText={value => this.props.postChange({ key: 'content', value })}
-        />
-      </View>
+      <GiftedChat
+        messages={this.props.messages}
+        onSend={this.onSend.bind(this)}
+        user={{
+          _id: this.props.uid,
+        }}
+
+        loadEarlier={this.props.loadEarlier}
+        // onLoadEarlier={this.onLoadEarlier}
+        // isLoadingEarlier={this.props.isLoadingEarlier}
+      />
     );
   }
 }
@@ -61,7 +85,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => {
-  return { ...state.chatroom };
+  return { ...state.chatroom, uid: state.root.currentUser.uid };
 };
 
 export default connect(mapStateToProps, chatroomActions)(Chatroom);

@@ -1,24 +1,37 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TouchableOpacity, Image, ListView } from 'react-native';
 import TimeAgo from 'react-native-timeago';
 import { Card, CardSection } from '../../_global/components';
 
 const userPic = require('../../../img/user-default.png');
 
+/*
+  ChatCard: {
+    chat: {
+        members: {
+          -K02saGS15:
+        }
+    }
+  }
+*/
+
 class ChatCard extends Component {
-  renderSubtitle() {
+  constructor(props) {
+    super(props);
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.state = {
+      members: ds.cloneWithRows(props.chat.members)
+    };
+  }
+
+  renderMember(member) {
     return (
-      <View>
-        <Text style={styles.subtitle}>
-          Last seen <TimeAgo time={this.props.chat.lastOnline} />
-        </Text>
-      </View>
+      <Text style={styles.title}>{member.displayName}</Text>
     );
   }
 
   render() {
-    const { displayName, picURL } = this.props.chat;
-    const { cardHeader, title, image, imageContainer, titlesContainer } = styles;
+    const { cardHeader, subtitle, image, imageContainer, titlesContainer } = styles;
 
     return (
       <TouchableOpacity onPress={this.props.onPress}>
@@ -28,10 +41,13 @@ class ChatCard extends Component {
               <Image style={image} source={{ uri: 'https://images.duckduckgo.com/iu/?u=http%3A%2F%2Fweknowmemes.com%2Fwp-content%2Fuploads%2F2012%2F01%2Fanonymous-mask.jpg&f=1' }} />
             </View>
             <View style={titlesContainer}>
-              <Text style={title}>
-                {displayName}
+              <ListView
+                dataSource={this.state.members}
+                renderRow={this.renderMember.bind(this)}
+              />
+              <Text style={subtitle}>
+                Gossiping.
               </Text>
-              {this.renderSubtitle()}
             </View>
           </CardSection>
         </Card>
