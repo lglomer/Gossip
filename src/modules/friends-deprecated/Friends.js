@@ -1,9 +1,6 @@
 /* eslint-disable global-require */
 import React, { Component } from 'react';
-import {
-	ListView,
-	Text,
-} from 'react-native';
+import { View } from 'react-native';
 import { connect } from 'react-redux';
 import * as friendsActions from './reducer';
 import { FriendsList } from './components';
@@ -54,7 +51,7 @@ class Friends extends Component {
 		const { container } = styles;
 		if (this.props.fetchedEmptyList) {
 			return (
-				<Text>Cold Outside</Text>
+				<View />
 			);
 		}
 
@@ -73,7 +70,6 @@ class Friends extends Component {
 const styles = {
 	container: {
 		flex: 1,
-		backgroundColor: '#E0E0E0',
 	}
 };
 

@@ -11,13 +11,13 @@ const store = configureStore();
 registerScreens(store, Provider); // register app's screens
 
 const appStyle = {
-  statusBarColor: '#880E4F',
+  statusBarColor: '#AD1457',
 };
 
 const navigatorStyle = {
   navBarTextColor: '#ffffff', // color of the title
   navBarButtonColor: '#ffffff',
-  navBarBackgroundColor: '#E91E63',
+  navBarBackgroundColor: '#F50057',
 };
 
 const portraitOnlyMode = true; // full support only on 2.0
@@ -35,7 +35,7 @@ export default class App {
 
     firebase.auth().onAuthStateChanged((user) => {
       if (user) { // login
-        store.dispatch(appActions.loginUser(user));
+        store.dispatch(appActions.userLoggedIn(user));
       } else if (!store.getState().root.currentUser) { // if null
         store.dispatch(appActions.appInitialized());
       }

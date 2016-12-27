@@ -39,9 +39,9 @@ export const fetchChatList = () => {
 		});
 
 		const { currentUser } = firebase.auth();
-		const userFriendsChatsRef = firebase.database().ref(`/userFriendsChats/${currentUser.uid}`);
+		const userAvailableChatsRef = firebase.database().ref(`/userAvailableChats/${currentUser.uid}`);
 
-    userFriendsChatsRef.on('value', snapshot => { //orderByChild?
+    userAvailableChatsRef.on('value', snapshot => { //orderByChild?
 			// should it be on value or on child_added / changed (removed)?
 			// if the latter how will we know from where to remove the child?
 			if (snapshot.exists()) {

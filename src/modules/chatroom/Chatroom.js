@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   View,
   StyleSheet,
+  Alert
 } from 'react-native';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -12,10 +13,8 @@ const moreIcon = require('../../img/ic_add_black_48dp.png');
 
 class Chatroom extends Component {
   static navigatorButtons = {
-    rightButtons: [{
-      icon: moreIcon,
-      title: 'LEAVE',
-      id: 'leave'
+    leftButtons: [{
+      id: 'menu'
     }],
     // leftButtons: [{
     //   icon: moreIcon,
@@ -31,24 +30,34 @@ class Chatroom extends Component {
 
   componentWillMount() {
     //TODO: reset state
-    if (this.props.chat) {
-      this.props.enterExistingChat(this.props.chat.id);
+    if (this.props.chatId) {
+      this.props.enterExistingChat(this.props.chatId);
+      this.props.subscribeToMessages({ chatId: this.props.chatId });
     } else if (this.props.friend) {
-      this.props.initChatWithFriend(this.props.friend);
+      Alert.alert('init');
+      this.props.initChatWithFriend({ chatFriend: this.props.friend });
+      //this.props.subscribeToMessages({ userId: this.props.friend.id });
     }
+  }
 
-    this.props.subscribeToMessages({ chatId: this.props.chatId });
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps.messages);
   }
 
   onNavigatorEvent(event) {
-    if (event.id === 'leave') {
-      this.props.navigator.pop();
-      this.props.leaveChat(this.props.chatId);
-    }
+    // if (event.id === 'leave') {
+    //   this.props.navigator.pop();
+    //   this.props.leaveChat(this.props.chatId);
+    // }
   }
 
   onSend(message) {
-    this.props.sendMessage({ message, chatId: this.props.chatId });
+    if (this.props.chatId) {
+      this.props.sendMessage({ message, chatId: this.props.chatId });
+    } else {
+      this.props.sendMessage({ message, friend: this.props.friend });
+    }
   }
 
   // onLoadEarlier() {

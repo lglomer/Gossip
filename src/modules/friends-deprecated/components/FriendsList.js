@@ -8,7 +8,15 @@ import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import { FriendCard } from './';
 
 //const addIcon = require('../../img/ic_add_black_48dp.png');
-
+/*
+	<FriendsList
+		styles={container}
+		loadMore={this.loadMore.bind(this)}
+		canLoadMore={this.props.canLoadMoreFriends}
+		data={this.props.friendsList}
+		onFriendPress={this.enterChat.bind(this)}
+	/>
+*/
 class FriendsList extends Component {
   constructor(props) {
 		super(props);
