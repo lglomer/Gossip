@@ -1,8 +1,10 @@
 /* eslint-disable  global-require */
 import { Navigation } from 'react-native-navigation';
-import { Alert } from 'react-native';
+import { AsyncStorage, Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
+import FCM from 'react-native-fcm';
+import Storage from 'react-native-storage';
 import configureStore from './redux/configureStore';
 import { registerScreens } from './screens';
 import * as appActions from './modules/_global/reducer';
@@ -21,6 +23,12 @@ const navigatorStyle = {
 };
 
 const portraitOnlyMode = true; // full support only on 2.0
+
+const storage = new Storage({
+    storageBackend: AsyncStorage,
+    defaultExpires: null
+});
+
 
 export default class App {
   constructor() {
@@ -45,11 +53,63 @@ export default class App {
           firebase.auth().signOut() is only called inside of appActions.logoutUser()
        */
     });
-
-    // since react-redux only works on components, we need to subscribe this class manually
     store.subscribe(this.onStoreUpdate.bind(this));
+  }
 
-    //store.dispatch(appActions.appInitialized());
+  componentDidMount() {
+    //FCM.requestPermissions(); // for ios
+    Alert.alert('componentDidMount');
+    FCM.getFCMToken().then(token => {
+      Alert.alert('token received');
+      console.log('TOKEN (getFCMToken)', token);
+      storage.save({
+        key: 'FCMToken',   // Note: Do not use underscore("_") in key!
+        rawData: {
+          token
+        },
+        expires: null
+      });
+    });
+
+    FCM.getInitialNotification().then(notif => {
+      console.log('INITIAL NOTIFICATION', notif);
+    });
+
+    this.notificationUnsubscribe = FCM.on('notification', notif => {
+      console.log('Notification', notif);
+      if (notif && notif.local) {
+        return;
+      }
+      this.sendRemote(notif);
+    });
+
+    this.refreshUnsubscribe = FCM.on('refreshToken', token => {
+      console.log('TOKEN (refreshUnsubscribe)', token);
+      storage.save({
+        key: 'FCMToken',   // Note: Do not use underscore("_") in key!
+        rawData: {
+          token
+        },
+        expires: null
+      });
+    });
+  }
+
+  componentWillUnmount() {
+      // prevent leaking
+      this.refreshUnsubscribe();
+      this.notificationUnsubscribe();
+  }
+
+  sendRemote(notif) {
+    FCM.presentLocalNotification({
+      title: notif.title,
+      body: notif.body,
+      priority: 'high',
+      click_action: notif.click_action,
+      show_in_foreground: true,
+      local: true
+    });
   }
 
   startApp({ loginState }) {
