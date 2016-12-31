@@ -28,7 +28,7 @@ export function userLoggedIn(user) {
     let val;
     let onlineUpdates = {};  // eslint-disable-line
     let offlineUpdates = {};  // eslint-disable-line
-    const { email, uid } = currentUser;
+    const { displayName, email, photoUrl, uid } = currentUser;
     const firebaseRef = firebase.database().ref();
     const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
     const userRef = firebase.database().ref(`users/${currentUser.uid}`);
@@ -46,7 +46,7 @@ export function userLoggedIn(user) {
       val = snapshot.val();
       if (!snapshot.exists() || !val.signupFinished) {
         dispatch(
-          changeAppRoot('signup-finish', { email, uid })
+          changeAppRoot('signup-finish', { displayName, email, photoUrl, uid })
         );
       } else {
         setOnlineStatusUpdate(`/users/${currentUser.uid}`);
@@ -91,7 +91,7 @@ export function userLoggedIn(user) {
         ////friendsRef.on('child_added', updateFriendsChats);
         //^^BAD^^, in case of new friend added, will handle manually when adding the friend.
 
-        dispatch(changeAppRoot('app', { email, uid }));
+        dispatch(changeAppRoot('app', { displayName, email, photoUrl, uid }));
       }
     });
   };

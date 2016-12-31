@@ -7,6 +7,10 @@ const FETCH_ONLINE_FRIENDS_EMPTY = 'gossip/drawer/FETCH_ONLINE_FRIENDS_EMPTY';
 const FETCH_AVAILABLE_CHATS_START = 'gossip/drawer/FETCH_AVAILABLE_CHATS_START';
 const FETCH_AVAILABLE_CHATS_SUCCESS = 'gossip/drawer/FETCH_AVAILABLE_CHATS_SUCCESS';
 const FETCH_AVAILABLE_CHATS_EMPTY = 'gossip/drawer/FETCH_AVAILABLE_CHATS_EMPTY';
+const FETCH_CURRENT_CHATS_START = 'gossip/drawer/FETCH_CURRENT_CHATS_START';
+const FETCH_CURRENT_CHATS_SUCCESS = 'gossip/drawer/FETCH_CURRENT_CHATS_SUCCESS';
+const FETCH_CURRENT_CHATS_EMPTY = 'gossip/drawer/FETCH_CURRENT_CHATS_EMPTY';
+
 
 const initialState = {
 	onlineUsers: [],
@@ -16,6 +20,10 @@ const initialState = {
 	availableChats: [],
 	isLoadingAvailableChats: true,
 	availableChatsEmpty: false,
+
+	currentChats: [],
+	isLoadingCurrentChats: true,
+	currentChatsEmpty: false,
 };
 
 export default function (state = initialState, action) {
@@ -53,6 +61,23 @@ export default function (state = initialState, action) {
 				isLoadingAvailableChats: false,
 				availableChatsEmpty: true
 			};
+
+			case FETCH_CURRENT_CHATS_START:
+				return { ...state, isLoadingCurrentChats: true, currentChatsEmpty: false };
+			case FETCH_CURRENT_CHATS_SUCCESS:
+				return {
+					...state,
+					currentChats: action.payload.currentChats,
+					isLoadingCurrentChats: false,
+					currentChatsEmpty: false
+				};
+			case FETCH_CURRENT_CHATS_EMPTY:
+				return {
+					...state,
+					currentChats: [],
+					isLoadingCurrentChats: false,
+					currentChatsEmpty: true
+				};
 
 		default:
 			return state;
@@ -107,6 +132,33 @@ export const fetchAvailableChats = () => {
 			} else {
 				dispatch({
 					type: FETCH_AVAILABLE_CHATS_EMPTY,
+				});
+			}
+    });
+  };
+};
+
+export const fetchCurrentChats = () => {
+  return (dispatch) => {
+		dispatch({ type: FETCH_CURRENT_CHATS_START });
+		const { currentUser } = firebase.auth();
+		const friendsRef = firebase.database().ref(`/userCurrentChats/${currentUser.uid}`);
+
+    friendsRef.orderByChild('createdAt').on('value', snapshot => {
+			// should it be on value or on child_added / removed?
+			// if the latter how will we know from where to remove the child?
+			if (snapshot.exists()) {
+				const currentChats = _.map(snapshot.val(), (val, uid) => {
+					return { ...val, id: uid };
+				});
+
+				dispatch({
+					type: FETCH_CURRENT_CHATS_SUCCESS,
+					payload: { currentChats }
+				});
+			} else {
+				dispatch({
+					type: FETCH_CURRENT_CHATS_EMPTY,
 				});
 			}
     });

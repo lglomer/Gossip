@@ -53,6 +53,10 @@ export default class App {
           firebase.auth().signOut() is only called inside of appActions.logoutUser()
        */
     });
+    // 
+    // if (store.getState().root.currentUser) { // previously logged in
+    //
+    // }
     store.subscribe(this.onStoreUpdate.bind(this));
   }
 

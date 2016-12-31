@@ -19,6 +19,7 @@
     "react-native-loading-spinner-overlay": "^0.4.1",
     "react-native-navigation": "^2.0.0-experimental.141",
     "react-native-pull-to-refresh": "^2.0.0",
+    "react-native-sound": "^0.8.3",
     "react-native-storage": "^0.1.4",
     "react-native-timeago": "^0.3.0",
     "react-native-vector-icons": "^3.0.0",

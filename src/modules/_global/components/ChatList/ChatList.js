@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {
 	ListView,
 } from 'react-native';
-import { ChatCard } from './';
+import { ChatCard } from '../';
 
 //const addIcon = require('../../img/ic_add_black_48dp.png');
 /*
