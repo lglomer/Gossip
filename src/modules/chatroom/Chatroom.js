@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import {
-  View,
   Alert,
-  Text,
 } from 'react-native';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
 
@@ -13,32 +10,27 @@ const Sound = require('react-native-sound');
 //const moreIcon = require('../../img/ic_add_black_48dp.png');
 
 class Chatroom extends Component {
-  static navigatorButtons = {
-    leftButtons: [{
-      id: 'menu'
-    }],
-    // leftButtons: [{
-    //   icon: moreIcon,
-    //   id: 'leave'
-    // }]
-  };
-
   static navigatorStyle = {
     drawUnderNavBar: true,
     navBarTransparent: true
   };
 
   componentWillMount() {
-    const { chatId, isJoined, chat } = this.props;
+    const { chatId, isJoined, chat, friend } = this.props;
+
     if (chatId) {
       if (isJoined) {
         this.props.fetchMessages({ chat });
       }
-
-      this.props.enterExistingChat(this.props.chatId);
-      this.props.subscribeToMessages({ chatId: this.props.chatId });
+      this.props.enterExistingChat({ chatId });
     } else if (this.props.friend) {
-      this.props.initChatWithFriend({ chatFriend: this.props.friend });
+      this.props.listenFriendForChat({ chatFriend: friend });
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.chatId !== nextProps.chatId) {
+      this.props.subscribeToMessages({ chatId: nextProps.chatId });
     }
   }
 
@@ -61,31 +53,6 @@ class Chatroom extends Component {
     });
   }
 
-  // onLoadEarlier() {
-  //   this.props.fetchMessages({
-  //     chatId: this.props.chatId,
-  //     lastMessageKey: this.props.lastMessageKey
-  //   });
-  // }
-  renderFooter() {
-    // if (this.props.typingText) {
-    //   return (
-    //     <View style={styles.footerContainer}>
-    //       <Text style={styles.footerText}>
-    //         {this.props.typingText}
-    //       </Text>
-    //     </View>
-    //   );
-    // }
-    return null;
-  }
-
-  renderHeader() {
-    return (
-      <View style={{ backgroundColor: 'red', height: 54 }} />
-    );
-  }
-
   render() {
     return (
       <GiftedChat
@@ -96,9 +63,6 @@ class Chatroom extends Component {
           name: this.props.currentUser.displayName,
           avatar: this.props.currentUser.photoURL
         }}
-        renderFooter={this.renderFooter.bind(this)}
-        renderHeader={this.renderHeader.bind(this)}
-        loadEarlier={this.props.loadEarlier}
       />
     );
   }

@@ -66,11 +66,11 @@ const styles = {
   },
   title: {
     color: '#000',
-    fontSize: 37,
+    fontSize: 43,
     fontWeight: '500'
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
   }
 };
 

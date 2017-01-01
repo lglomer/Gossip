@@ -4,31 +4,24 @@ import _ from 'lodash';
 
 const FETCH_MESSAGES = 'gossip/chatroom/FETCH_MESSAGES';
 const MESSAGE_CHANGE = 'gossip/chatroom/MESSAGE_CHANGE';
-const MESSAGE_SEND_START = 'gossip/chatroom/MESSAGE_SEND_START';
-const MESSAGE_SEND_FINISH = 'gossip/chatroom/MESSAGE_SEND_FINISH';
+const MESSAGE_SEND = 'gossip/chatroom/MESSAGE_SEND';
 const CHAT_INITIALIZED = 'gossip/chatroom/CHAT_INITIALIZED';
-const ENTER_EXISTING_CHAT = 'gossip/chatroom/ENTER_EXISTING_CHAT';
 const MESSAGE_RECIEVE = 'gossip/chatroom/MESSAGE_RECIEVE';
-const GET_TYPING_TEXT = 'gossip/chatroom/GET_TYPING_TEXT';
-const CREATE_CHAT_WITH_FRIEND = 'gossip/chatroom/CREATE_CHAT_WITH_FRIEND';
 
 const initialState = {
 	text: '',
 	messages: [],
 	chatId: null,
-	loadEarlier: false,
 	typingText: null,
-	isSending: false,
 };
 
 export default function (state = initialState, action) {
 	switch (action.type) {
 		case MESSAGE_CHANGE:
 			return { ...state, text: action.payload.value };
-		case MESSAGE_SEND_START:
-			return { ...state, text: initialState.text, isSending: true };
-		case MESSAGE_SEND_FINISH:
-			return { ...state, isSending: false };
+		case MESSAGE_SEND:
+			return { ...state, text: initialState.text };
+
 		case FETCH_MESSAGES:
 			return {
 				...state,
@@ -40,13 +33,8 @@ export default function (state = initialState, action) {
 				isTyping: false,
 				messages: [action.payload.message, ...state.messages]
 			};
+
 		case CHAT_INITIALIZED:
-			return { ...state, chatId: action.payload.chatId };
-		case ENTER_EXISTING_CHAT:
-			return { ...state, chatId: action.payload.chatId };
-		case GET_TYPING_TEXT:
-			return { ...state, typingText: action.payload.typingText };
-		case CREATE_CHAT_WITH_FRIEND:
 			return { ...state, chatId: action.payload.chatId };
 
 		default:
@@ -54,20 +42,14 @@ export default function (state = initialState, action) {
 	}
 }
 
-export const messageChange = ({ value, chatId }) => {
-	// if (value === '') {
-	// 	firebase.database().ref(``)
-	// } else {
-	//
-	// }
-
+export function messageChange({ value }) {
 	return {
 		type: MESSAGE_CHANGE,
 		payload: { value }
 	};
-};
+}
 
-export const subscribeToMessages = ({ chatId }) => {
+export function subscribeToMessages({ chatId }) {
 	return (dispatch) => {
 		const chatMessagesRef = firebase.database().ref(`/chatMessages/${chatId}`);
 		// listen to messages
@@ -93,12 +75,11 @@ export const subscribeToMessages = ({ chatId }) => {
 			}
     });
 	};
-};
+}
 
-const createChatWithFriend = ({ friend }) => {
+function createChatWithFriend({ chatId, friend }) {
 	return new Promise((resolve) => {
 		const { currentUser } = firebase.auth();
-		const chatId = firebase.database().ref('/chatMessages').push().key;
 
 		let chatUpdates = {}; // eslint-disable-line
 		let offlineUpdates = {}; // eslint-disable-line
@@ -127,53 +108,56 @@ const createChatWithFriend = ({ friend }) => {
 		offlineUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = null;
 
 
+		firebase.database().ref().onDisconnect().update(offlineUpdates);
 		firebase.database().ref().update(chatUpdates).then(() => {
 			resolve(chatId);
 		});
-
-		firebase.database().ref().onDisconnect().update(offlineUpdates);
 	});
-};
+}
 
-export const sendMessage = ({ message, chatId, friend }) => {
+export function sendMessage({ message, chatId, friend }) {
 	return (dispatch) => {
 		dispatch({
-			type: MESSAGE_SEND_START,
+			type: MESSAGE_SEND,
+			payload: { message }
 		});
+
+		const send = (key) => {
+			const { currentUser } = firebase.auth();
+			const messagesRef = firebase.database().ref(`/chatMessages/${key}`);
+			messagesRef.push({
+				text: message[0].text,
+				timestamp: firebase.database.ServerValue.TIMESTAMP,
+				sender: {
+					id: currentUser.uid,
+					displayName: currentUser.displayName
+				},
+			});
+		};
 
 		let key;
 		if (chatId) {
 			key = chatId;
+			send(key);
 		} else {
-			createChatWithFriend({ friend }).then((id) => {
-				key = id;
+			key = firebase.database().ref('/chatMessages').push().key;
+			send(key);
+
+			createChatWithFriend({ chatId: key, friend }).then(() => {
+				dispatch({
+					type: CHAT_INITIALIZED,
+					payload: { chatId: key }
+				});
 			});
 		}
-
-		// SEND MESSAGE
-		const { currentUser } = firebase.auth();
-		const messagesRef = firebase.database().ref(`/chatMessages/${key}`);
-		messagesRef.push({
-			text: message[0].text,
-			timestamp: firebase.database.ServerValue.TIMESTAMP,
-			sender: {
-				id: currentUser.uid,
-				displayName: currentUser.displayName
-			},
-		})
-		.then(() => {
-			dispatch({
-				type: MESSAGE_SEND_FINISH
-			});
-		});
 	};
-};
+}
 
-export function initChatWithFriend({ chatFriend }) {
+export function listenFriendForChat({ chatFriend }) {
 	return (dispatch) => {
 		const { currentUser } = firebase.auth();
 		const privateChatRef =
-			firebase.database().ref(`/userFriends/${currentUser.uid}/${chatFriend.id}/privateChatId`);
+			firebase.database().ref(`/userFriends/${chatFriend.id}/${currentUser.uid}/privateChatId`);
 
 		const callback = (snapshot) => {
 			if (snapshot.exists()) {
@@ -181,7 +165,7 @@ export function initChatWithFriend({ chatFriend }) {
 					type: CHAT_INITIALIZED,
 					payload: { chatId: snapshot.val() }
 				});
-				dispatch(subscribeToMessages({ chatId: snapshot.val() }));
+
 				privateChatRef.off('value', callback);
 			}
 		};
@@ -189,6 +173,8 @@ export function initChatWithFriend({ chatFriend }) {
 
 		let offlineUpdates = {}; // eslint-disable-line
 		offlineUpdates[`/userFriends/${currentUser.uid}/${chatFriend.id}/privateChatId`] = null;
+		//offlineUpdates[`/userFriends/${chatFriend.id}/${currentUser.uid}/privateChatId`] = null;
+
 		firebase.database().ref().onDisconnect().update(offlineUpdates);
 	};
 }
@@ -196,6 +182,9 @@ export function initChatWithFriend({ chatFriend }) {
 export function enterExistingChat({ chatId }) {
 	return (dispatch) => {
 		const { currentUser } = firebase.auth();
+		const firebaseRef = firebase.database().ref();
+		const currentChatsRef =
+			firebase.database().ref(`/userCurrentChats/${currentUser.uid}/${chatId}`);
 		const updateObj = {
 			[currentUser.uid]: {
 				displayName: currentUser.displayName,
@@ -203,30 +192,27 @@ export function enterExistingChat({ chatId }) {
 			}
 		};
 
-		let offlineUpdates = {}; // eslint-disable-line
-		offlineUpdates[`/userCurrentChats/${currentUser.uid}/${chatId}`] = null;
-
-		firebase.database().ref(`/userAvailableChats/${currentUser.uid}/${chatId}`)
-		.once('value', (snapshot) => {
-			offlineUpdates[`/userAvailableChats/${currentUser.uid}/${chatId}`] = snapshot.val();
-		});
-
 		let onlineUpdates = {}; // eslint-disable-line
-		onlineUpdates[`/userCurrentChats/${currentUser.uid}/${chatId}/members`] = updateObj;
+		onlineUpdates[`/userCurrentChats/${currentUser.uid}/${chatId}/members/${currentUser.uid}`]
+			= updateObj;
 		onlineUpdates[`/userAvailableChats/${currentUser.uid}/${chatId}`] = null;
 
 		firebase.database().ref().update(onlineUpdates).then(() => {
 			dispatch({
-				type: ENTER_EXISTING_CHAT,
+				type: CHAT_INITIALIZED,
 				payload: { chatId }
 			});
 		});
-		firebase.database().ref().onDisconnect().update(offlineUpdates);
+
+		let offlineUpdates = {}; // eslint-disable-line
+		offlineUpdates[`/userCurrentChats/${currentUser.uid}/${chatId}`] = null;
+
+		//`/userAvailableChats/${currentUser.uid}/${chatId}`
+		firebaseRef.onDisconnect().update(offlineUpdates);
 	};
 }
 
-
-export const fetchMessages = ({ chat }) => {
+export function fetchMessages({ chat }) {
 	return (dispatch) => {
 		const { currentUser } = firebase.auth();
 		const chatMessagesRef = firebase.database().ref(`/chatMessages/${chat.id}`);
@@ -254,138 +240,4 @@ export const fetchMessages = ({ chat }) => {
 			}
 		});
 	};
-};
-
-// export function initChatWithFriend({ chatFriend }) {
-//   return (dispatch) => {
-//     let onlineUpdates = {};  // eslint-disable-line
-//     let offlineUpdates = {};  // eslint-disable-line
-//     const { currentUser } = firebase.auth();
-//     const firebaseRef = firebase.database().ref();
-//     const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
-// 		const chatsRef = firebase.database().ref('chats');
-//
-//     const setUpdatesByPath = (updatePath) => {
-//       // online updates
-// 			onlineUpdates[`${updatePath}/members/${currentUser.uid}/joinedAt`] =
-// 				firebase.database.ServerValue.TIMESTAMP;
-// 			onlineUpdates[`${updatePath}/members/${currentUser.uid}/displayName`] =
-// 				currentUser.displayName;
-//
-// 			onlineUpdates[`${updatePath}/members/${chatFriend.id}/joinedAt`] =
-// 				firebase.database.ServerValue.TIMESTAMP;
-// 			onlineUpdates[`${updatePath}/members/${chatFriend.id}/displayName`] =
-// 				chatFriend.displayName;
-//     };
-//
-// 		// add the chat
-// 		const chatId = chatsRef.push().key;
-//     setUpdatesByPath(`/userCurrentChats/${currentUser.uid}/${chatId}`);
-// 		setUpdatesByPath(`/userCurrentChats/${chatFriend.id}/${chatId}`);
-// 		// (offlineUpdates handled in global reducer on logout / disconnect)
-//
-// 		//let path;
-//     // function to update friend's chats
-//     const updateFriendsChats = (friendshot) => {
-//       friendshot.forEach(friend => { // for each friend
-// 				if (friend.id !== chatFriend.id) {
-// 					setUpdatesByPath(`/userAvailableChats/${friend.getKey()}/${chatId}`);
-// 					// path = `/userCurrentChats/${friend.getKey()}/${chatId}/members/${currentUser.uid}`;
-// 					// offlineUpdates[path] = null;
-// 				}
-//       });
-//     };
-//
-//     // execute updates
-//     friendsRef.once('value', updateFriendsChats).then(() => {
-//       firebaseRef.update(onlineUpdates).then(() => {
-// 				/////dispatch({ type: CHAT_INITIALIZED });
-// 			});
-//       firebaseRef.onDisconnect().update(offlineUpdates);
-//   };
-// }
-
-// export function leaveChat(chatId) {
-//   return (dispatch) => {
-//     let offlineUpdates = {};  // eslint-disable-line
-//     const { currentUser } = firebase.auth();
-//     const firebaseRef = firebase.database().ref();
-//     const friendsRef = firebase.database().ref(`userFriends/${currentUser.uid}`);
-//
-// 		offlineUpdates[`/users/${currentUser.uid}/currentChat`] = null;
-//
-// 		let updatePath;
-//     // function to update friend's chats
-//     const updateFriendsChats = (friendshot) => {
-//       friendshot.forEach(friend => { // for each friend
-// 				updatePath = `/userOnlineFriends/${friend.getKey()}/${currentUser.uid}/currentChat`;
-// 				offlineUpdates[`${updatePath}`] = null;
-//
-// 				updatePath = `/userAvailableChats/${friend.getKey()}/${chatId}/members/${currentUser.uid}`;
-// 				offlineUpdates[`${updatePath}`] = null;
-//       });
-//     };
-//     });
-//
-//     // execute updates
-//     friendsRef.once('value', updateFriendsChats).then(() => {
-//       firebaseRef.update(offlineUpdates).then(() => {
-// 				dispatch({ type: CHAT_INITIALIZED });
-// 			});
-//     });
-//   };
-// }
-
-// export const fetchMessages = ({ chatId }) => {
-// 	return (dispatch) => {
-// 		dispatch({
-// 			type: FETCH_MESSAGES_START
-// 		});
-//
-// 		if (!chatId) { // If no chat id, add one and return
-// 			dispatch({
-// 				type: FETCH_MESSAGES_EMPTY,
-// 			});
-// 			return;
-// 		}
-//
-// 		const chatMessagesRef = firebase.database().ref(`/chatMessages/${chatId}`);
-// 		chatMessagesRef.orderByKey().limitToFirst(MESSAGES_PER_FETCH).on('value', snapshot => {
-// 			if (snapshot.exists()) {
-// 				const messages = _.map(snapshot.val(), (val, uid) => {
-// 					return {
-// 						_id: uid,
-// 						text: val.text,
-// 						createdAt: val.timestamp,
-// 						user: {
-// 							_id: val.sender.id,
-// 							name: val.sender.displayName,
-// 							avatar: 'https://facebook.github.io/react/img/logo_og.png',
-// 						},
-// 						//image: 'https://facebook.github.io/react/img/logo_og.png',
-// 					};
-// 				});
-//
-// 				if (messages.length === MESSAGES_PER_FETCH) {
-// 					const keys = Object.keys(messages);
-// 					const newLastKey = keys[0];
-// 					messages.shift(); // remove first item
-//
-// 					dispatch({
-// 						type: FETCH_MESSAGES_SUCCESS,
-// 						payload: { messages, lastMessageKey: newLastKey, loadEarlier: true }
-// 					});
-// 				} else {
-// 					dispatch({
-// 						type: FETCH_MESSAGES_SUCCESS,
-// 						payload: { messages, loadEarlier: false }
-// 					});
-// 				}
-// 			} else {
-// 				dispatch({
-// 					type: FETCH_MESSAGES_EMPTY,
-// 				});
-// 			}
-// 		});
-// 	};
-// };
+}
