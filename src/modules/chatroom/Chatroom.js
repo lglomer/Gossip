@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import {
-  Alert,
-} from 'react-native';
 import { connect } from 'react-redux';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
@@ -12,18 +9,19 @@ const Sound = require('react-native-sound');
 class Chatroom extends Component {
   static navigatorStyle = {
     drawUnderNavBar: true,
-    navBarTransparent: true
   };
 
   componentWillMount() {
-    const { chatId, isJoined, chat, friend } = this.props;
+    const { chatToEnter, friend } = this.props;
 
-    if (chatId) {
-      if (isJoined) {
-        this.props.fetchMessages({ chat });
+    if (chatToEnter) {
+      if (chatToEnter.isMember) {
+        //this.props.fetchMessages({ chat: chatToEnter });
+        this.props.chatInitialized(chatToEnter, chatToEnter.id);
+      } else {
+        this.props.enterExistingChat({ chat: chatToEnter });
       }
-      this.props.enterExistingChat({ chatId });
-    } else if (this.props.friend) {
+    } else if (friend) {
       this.props.listenFriendForChat({ chatFriend: friend });
     }
   }
@@ -35,7 +33,7 @@ class Chatroom extends Component {
   }
 
   onSend(message) {
-    this.playSound();
+    this.playSound('message_send.wav');
     if (this.props.chatId) {
       this.props.sendMessage({ message, chatId: this.props.chatId });
     } else {
@@ -43,8 +41,8 @@ class Chatroom extends Component {
     }
   }
 
-  playSound() {
-    const sound = new Sound('message_send.wav', Sound.MAIN_BUNDLE, (error) => {
+  playSound(path) {
+    const sound = new Sound(path, Sound.MAIN_BUNDLE, (error) => {
       if (error) {
         console.log('failed to load the sound', error);
       } else {
@@ -68,23 +66,23 @@ class Chatroom extends Component {
   }
 }
 
-const styles = {
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f1f1',
-    padding: 20
-  },
-  footerContainer: {
-  marginTop: 5,
-  marginLeft: 10,
-  marginRight: 10,
-  marginBottom: 10,
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#aaa',
-  },
-};
+// const styles = {
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#f1f1f1',
+//     padding: 20
+//   },
+//   footerContainer: {
+//   marginTop: 5,
+//   marginLeft: 10,
+//   marginRight: 10,
+//   marginBottom: 10,
+//   },
+//   footerText: {
+//     fontSize: 14,
+//     color: '#aaa',
+//   },
+// };
 
 const mapStateToProps = state => {
   return { ...state.chatroom, currentUser: state.root.currentUser };

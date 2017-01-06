@@ -1,36 +1,39 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { View, ScrollView, Text } from 'react-native';
-import * as chatsActions from './reducer';
+import * as friendsActions from './reducer';
 import { ChatList } from '../_global/components';
 
-class Chats extends Component {
+class Friends extends Component {
 	componentWillMount() {
-		this.props.fetchChats();
+		this.props.fetchOnlineFriends();
 	}
 
-	enterChat(chat) {
+	enterChatWithUser(user) {
 		this.props.navigator.push({
 			screen: 'Gossip.Chatroom',
-			title: chat.id,
-			passProps: { chatToEnter: chat }
+			title: user.displayName,
+			passProps: { friend: user }
 		});
 	}
 
-	renderChats() {
+	renderOnlineUsers() {
 		const { padding, sectionTitle } = styles;
-		const { isLoadingChats, chatsEmpty } = this.props;
-		if (isLoadingChats || chatsEmpty) {
+		const { isLoadingOnlineUsers, onlineUsersEmpty } = this.props;
+		if (isLoadingOnlineUsers || onlineUsersEmpty) {
 			return (
-				<Text style={[padding, sectionTitle]}>HELLO?</Text>
+				<Text style={[padding, sectionTitle]}>ONLINE USERS</Text>
 			);
 		}
 
 		return (
-			<ChatList
-				list={this.props.chats}
-				onChatPress={this.enterChat.bind(this)}
-			/>
+			<View>
+				<Text style={[padding, sectionTitle]}>ONLINE USERS</Text>
+				<ChatList
+					list={this.props.onlineUsers}
+					onChatPress={this.enterChatWithUser.bind(this)}
+				/>
+			</View>
 		);
 	}
 
@@ -40,7 +43,7 @@ class Chats extends Component {
 			<ScrollView contentContainerStyle={container}>
 				<View style={bodyContainer}>
 					<View style={section}>
-						{this.renderChats()}
+						{this.renderOnlineUsers()}
 					</View>
 				</View>
 			</ScrollView>
@@ -73,7 +76,7 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  return { ...state.chats, currentUser: state.root.currentUser };
+  return { ...state.friends, currentUser: state.root.currentUser };
 };
 
-export default connect(mapStateToProps, chatsActions)(Chats);
+export default connect(mapStateToProps, friendsActions)(Friends);

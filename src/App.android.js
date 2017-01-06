@@ -14,12 +14,13 @@ registerScreens(store, Provider); // register app's screens
 
 const appStyle = {
   statusBarColor: '#AD1457',
-};
-
-const navigatorStyle = {
-  navBarTextColor: '#ffffff', // color of the title
-  navBarButtonColor: '#ffffff',
-  navBarBackgroundColor: '#F50057',
+  //navigationBarColor: '#FFFFFF',
+  navBarBackgroundColor: '#FFFFFF',
+  navBarTextColor: 'black',
+  navBarButtonColor: 'black',
+  tabBarButtonColor: '#AD1457',
+  tabBarSelectedButtonColor: '#AD1457',
+  tabBarBackgroundColor: '#AD1457'
 };
 
 const portraitOnlyMode = true; // full support only on 2.0
@@ -28,7 +29,6 @@ const storage = new Storage({
     storageBackend: AsyncStorage,
     defaultExpires: null
 });
-
 
 export default class App {
   constructor() {
@@ -160,18 +160,35 @@ export default class App {
   startFullApp() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'Gossip.Chats',
+        screen: 'Gossip.Root',
         title: 'Chats',
-        navigatorStyle,
+        topTabs: this.createTabs(),
+        // navigatorStyle,
       },
       portraitOnlyMode,
       appStyle,
-      passProps: {
-        navigatorStyle
-      }
+      // passProps: {
+      //   navigatorStyle
+      // }
     });
   }
 
+  createTabs() {
+    return [
+      {
+        screenId: 'Gossip.Chats',
+        title: 'Chats',
+        label: 'Chats',
+        tabBarBackgroundColor: '#4dbce9',
+      },
+      {
+        screenId: 'Gossip.Friends',
+        title: 'Friends',
+        label: 'Friends',
+        tabBarBackgroundColor: '#4dbce9',
+      },
+    ];
+  }
 
   onStoreUpdate() {
     const { root } = store.getState();

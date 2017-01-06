@@ -41,6 +41,7 @@ class ChatList extends Component {
         displayName={chat.displayName}
 				members={chat.members}
         onPress={() => this.props.onChatPress(chat)}
+				unseenNum={chat.unseenNum}
       />
     );
 	}

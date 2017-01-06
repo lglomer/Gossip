@@ -5,7 +5,9 @@ import { Text, View, TouchableOpacity, ListView, Image } from 'react-native';
 /*
   <ChatCard
     title={chat.displayName}
+    members={}
     onPress={() => this.props.onFriendPress(chat)}
+    unreadNum=4
   />
 */
 class ChatCard extends Component {
@@ -34,18 +36,35 @@ class ChatCard extends Component {
     );
   }
 
+  renderBadge() {
+    if (this.props.unreadNum && this.props.unreadNum !== 0) {
+      return (
+        <View style={styles.rightPart}>
+          <View style={styles.badge}>
+            <Text>{this.props.unreadNum}</Text>
+          </View>
+        </View>
+      );
+    }
+
+    return null;
+  }
+
   render() {
-    const { card, image, imageContainer, titlesContainer } = styles;
+    const { card, image, imageContainer, badge, leftPart, rightPart, titlesContainer } = styles;
 
     return (
       <TouchableOpacity onPress={this.props.onPress}>
         <View style={card}>
-          <View style={imageContainer}>
-            <Image style={image} source={{ uri: 'https://images.duckduckgo.com/iu/?u=http%3A%2F%2Fweknowmemes.com%2Fwp-content%2Fuploads%2F2012%2F01%2Fanonymous-mask.jpg&f=1' }} />
+          <View style={leftPart}>
+            <View style={imageContainer}>
+              <Image style={image} source={{ uri: 'https://images.duckduckgo.com/iu/?u=http%3A%2F%2Fweknowmemes.com%2Fwp-content%2Fuploads%2F2012%2F01%2Fanonymous-mask.jpg&f=1' }} />
+            </View>
+            <View style={titlesContainer}>
+              {this.renderTitle()}
+            </View>
           </View>
-          <View style={titlesContainer}>
-            {this.renderTitle()}
-          </View>
+          {this.renderBadge()}
         </View>
       </TouchableOpacity>
     );
@@ -58,11 +77,20 @@ const styles = {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,
+    position: 'relative',
+    flexDirection: 'row',
+    // backgroundColor: '#FFF'
+  },
+  leftPart: {
+    flex: 1,
     paddingTop: 7,
     paddingBottom: 7,
     justifyContent: 'flex-start',
     flexDirection: 'row',
-    position: 'relative',
+  },
+  rightPart: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   titlesContainer: {
     justifyContent: 'center'
@@ -86,6 +114,15 @@ const styles = {
     width: 30,
     borderRadius: 15
   },
+  badge: {
+    backgroundColor: '#ffc107',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    paddingRight: 11,
+    paddingLeft: 11,
+    borderRadius: 11,
+  }
 };
 
 export { ChatCard };
