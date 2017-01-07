@@ -163,7 +163,13 @@ export default class App {
         screen: 'Gossip.Root',
         title: 'Chats',
         topTabs: this.createTabs(),
-        // navigatorStyle,
+        navigatorStyle: {
+           navBarBackgroundColor: '#4dbce9',
+           navBarTextColor: '#ffff00',
+           navBarSubtitleTextColor: '#ff0000',
+           navBarButtonColor: '#ffffff',
+           statusBarTextColorScheme: 'light'
+        }
       },
       portraitOnlyMode,
       appStyle,
@@ -179,13 +185,11 @@ export default class App {
         screenId: 'Gossip.Chats',
         title: 'Chats',
         label: 'Chats',
-        tabBarBackgroundColor: '#4dbce9',
       },
       {
         screenId: 'Gossip.Friends',
         title: 'Friends',
         label: 'Friends',
-        tabBarBackgroundColor: '#4dbce9',
       },
     ];
   }

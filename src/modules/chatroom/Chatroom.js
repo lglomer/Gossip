@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { TextInput, StyleSheet, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
@@ -51,11 +52,32 @@ class Chatroom extends Component {
     });
   }
 
+  renderComposer(props) {
+    return (
+      <TextInput
+        placeholder={'Write a message...'}
+        multiline
+        onChange={(e) => {
+          props.onChange(e);
+          this.props.messageChange(props.text);
+        }}
+        style={[styles.textInput, {
+          height: Math.max(40, props.composerHeight),
+        }]}
+        value={props.text}
+        enablesReturnKeyAutomatically
+        underlineColorAndroid="transparent"
+      />
+        //{ height:  }
+    );
+  }
+
   render() {
     return (
       <GiftedChat
         messages={this.props.messages}
         onSend={this.onSend.bind(this)}
+        renderComposer={this.renderComposer.bind(this)}
         user={{
           _id: this.props.currentUser.uid,
           name: this.props.currentUser.displayName,
@@ -66,23 +88,22 @@ class Chatroom extends Component {
   }
 }
 
-// const styles = {
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#f1f1f1',
-//     padding: 20
-//   },
-//   footerContainer: {
-//   marginTop: 5,
-//   marginLeft: 10,
-//   marginRight: 10,
-//   marginBottom: 10,
-//   },
-//   footerText: {
-//     fontSize: 14,
-//     color: '#aaa',
-//   },
-// };
+const styles = StyleSheet.create({
+  textInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    lineHeight: 16,
+    marginTop: Platform.select({
+      ios: 6,
+      android: 0,
+    }),
+    marginBottom: Platform.select({
+      ios: 5,
+      android: 3,
+    }),
+  },
+});
 
 const mapStateToProps = state => {
   return { ...state.chatroom, currentUser: state.root.currentUser };

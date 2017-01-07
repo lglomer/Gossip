@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import firebase from 'firebase';
 import _ from 'lodash';
 
@@ -43,6 +44,7 @@ export default function (state = initialState, action) {
 }
 
 export function messageChange({ value }) {
+	Alert.alert(value);
 	return {
 		type: MESSAGE_CHANGE,
 		payload: { value }
