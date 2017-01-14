@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { View, ScrollView, Text } from 'react-native';
+import _ from 'lodash';
 import * as chatsActions from './reducer';
 import { ChatList } from '../_global/components';
 
@@ -9,13 +10,20 @@ class Chats extends Component {
 		this.props.fetchChats();
 	}
 
-	enterChat(chat) {
-		this.props.navigator.push({
-			screen: 'Gossip.Chatroom',
-			title: chat.id,
-			passProps: { chatToEnter: chat }
-		});
-	}
+enterChat(chat) {
+	let title = '';
+	_.map(chat.members, (val) => {
+		title += `${val.displayName}, `;
+	});
+
+	title = title.substring(0, title.length - 2);
+
+	this.props.navigator.push({
+		screen: 'Gossip.Chatroom',
+		title,
+		passProps: { chatToEnter: chat }
+	});
+}
 
 	renderChats() {
 		const { padding, sectionTitle } = styles;

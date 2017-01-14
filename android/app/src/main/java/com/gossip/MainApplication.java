@@ -2,6 +2,7 @@ package com.gossip;
 
 import android.app.Application;
 import android.util.Log;
+import android.support.annotation.NonNull;
 
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactApplication;
@@ -13,8 +14,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 
-
-import android.support.annotation.Nullable;
 
 import com.facebook.react.ReactPackage;
 import com.reactnativenavigation.NavigationApplication;
@@ -28,7 +27,7 @@ public class MainApplication extends NavigationApplication {
         return BuildConfig.DEBUG;
     }
 
-    @Nullable
+    @NonNull
     @Override
     public List<ReactPackage> createAdditionalReactPackages() {
       return Arrays.<ReactPackage>asList(

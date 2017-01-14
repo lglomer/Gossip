@@ -8,6 +8,7 @@ import Storage from 'react-native-storage';
 import configureStore from './redux/configureStore';
 import { registerScreens } from './screens';
 import * as appActions from './modules/_global/reducer';
+import * as Sounds from './modules/_global/sounds';
 
 const store = configureStore();
 registerScreens(store, Provider); // register app's screens
@@ -48,6 +49,7 @@ export default class App {
         store.dispatch(appActions.appInitialized());
       }
 
+      Sounds.prepareSounds();
       /* appActions.logoutUser() is called manually, as we need to be
           authenticated to run the queries within it.
           firebase.auth().signOut() is only called inside of appActions.logoutUser()
@@ -168,7 +170,9 @@ export default class App {
            navBarTextColor: '#ffff00',
            navBarSubtitleTextColor: '#ff0000',
            navBarButtonColor: '#ffffff',
-           statusBarTextColorScheme: 'light'
+           statusBarTextColorScheme: 'light',
+           tabBarButtonColor: 'red',
+           tabBarSelectedButtonColor: 'red',
         }
       },
       portraitOnlyMode,

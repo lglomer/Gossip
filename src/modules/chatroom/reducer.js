@@ -1,5 +1,5 @@
-import { Alert } from 'react-native';
 import firebase from 'firebase';
+import { Alert } from 'react-native';
 import _ from 'lodash';
 
 const CHAT_INITIALIZED = 'gossip/chatroom/CHAT_INITIALIZED';
@@ -7,6 +7,7 @@ const FETCH_MESSAGES = 'gossip/chatroom/FETCH_MESSAGES';
 const MESSAGE_CHANGE = 'gossip/chatroom/MESSAGE_CHANGE';
 const MESSAGE_SEND = 'gossip/chatroom/MESSAGE_SEND';
 const MESSAGE_RECIEVE = 'gossip/chatroom/MESSAGE_RECIEVE';
+const TYPING_RECEIVE = 'gossip/chatroom/TYPING_RECEIVE';
 
 const initialState = {
 	text: '',
@@ -21,7 +22,7 @@ export default function (state = initialState, action) {
 		case MESSAGE_CHANGE:
 			return { ...state, text: action.payload.value };
 		case MESSAGE_SEND:
-			return { ...state, text: initialState.text };
+			return { ...state, text: initialState.text, isTyping: false };
 
 		case FETCH_MESSAGES:
 			return {
@@ -31,8 +32,13 @@ export default function (state = initialState, action) {
 		case MESSAGE_RECIEVE:
 			return {
 				...state,
-				isTyping: false,
 				messages: [action.payload.message, ...state.messages]
+			};
+
+		case TYPING_RECEIVE:
+			return {
+				...state,
+				typingText: action.payload.typingText,
 			};
 
 		case CHAT_INITIALIZED:
@@ -42,12 +48,34 @@ export default function (state = initialState, action) {
 			return state;
 	}
 }
+export function messageChange({ newVal, oldVal, chatId }) {
+	return (dispatch) => {
+		dispatch({
+			type: MESSAGE_CHANGE,
+			payload: { value: newVal }
+		});
 
-export function messageChange({ value }) {
-	Alert.alert(value);
-	return {
-		type: MESSAGE_CHANGE,
-		payload: { value }
+		const setTyping = (isTyping) => {
+			const { currentUser } = firebase.auth();
+			const typingRef = firebase.database().ref(`/chats/${chatId}/typing/${currentUser.uid}`);
+
+			let pushObj = null;
+			if (isTyping) {
+				pushObj = {
+					displayName: currentUser.displayName
+				};
+			}
+
+			typingRef.set(pushObj);
+		};
+
+		if (newVal.length > 0 && oldVal.length === 0) {
+			setTyping(true); //typing
+		}
+
+		if (newVal.length === 0) {
+			setTyping(false); //not typing
+		}
 	};
 }
 
@@ -76,6 +104,53 @@ export function subscribeToMessages({ chatId }) {
 					payload: { message }
 				});
 			}
+    });
+	};
+}
+
+export function subscribeToTyping({ chatId }) {
+	return (dispatch) => {
+		const { currentUser } = firebase.auth();
+		const typingRef = firebase.database().ref(`/chats/${chatId}/typing`);
+		// listen to typing
+		let typingText = '';
+    typingRef.on('value', snapshot => {
+			if (snapshot.exists()) {
+				let count = 0;
+				let prvTyper;
+
+				snapshot.forEach(typer => {
+					if (typer.getKey() !== currentUser.uid) {
+						switch (count) {
+							case 0:
+								typingText = `${typer.val().displayName} is typing...`;
+								prvTyper = typer;
+								break;
+
+							case 1:
+								typingText =
+									`${prvTyper.val().displayName} and ${typer.val().displayName} are typing...`;
+								break;
+
+							case 2:
+								typingText = `${prvTyper.val().displayName}, ${typer.val().displayName}`;
+								break;
+							default:
+						}
+						count++;
+					}
+				});
+
+				if (count >= 3) {
+					typingText += `and ${count - 1} more are typing...`;
+				}
+			} else { // if snapshot.val() is undefined
+				typingText = '';
+			}
+			dispatch({
+				type: TYPING_RECEIVE,
+				payload: { typingText }
+			});
     });
 	};
 }
@@ -131,11 +206,11 @@ export function sendMessage({ message, chatId, friend }) {
 			payload: { message }
 		});
 
-		const send = (key) => {
-			const { currentUser } = firebase.auth();
-			//const updates = {};
+		// dispatch MESSAGE_CHANGE to stop typing
 
-			//updates[`/chats/${key}/`] =
+		const send = (key) => {
+			dispatch(messageChange({ newVal: '', oldVal: message, chatId: key }));
+			const { currentUser } = firebase.auth();
 
 			const messagesRef = firebase.database().ref(`/chatMessages/${key}`);
 			messagesRef.push({

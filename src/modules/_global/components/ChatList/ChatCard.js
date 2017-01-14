@@ -51,7 +51,7 @@ class ChatCard extends Component {
   }
 
   render() {
-    const { card, image, imageContainer, badge, leftPart, rightPart, titlesContainer } = styles;
+    const { card, image, imageContainer, leftPart, titlesContainer } = styles;
 
     return (
       <TouchableOpacity onPress={this.props.onPress}>
@@ -93,7 +93,9 @@ const styles = {
     alignItems: 'center',
   },
   titlesContainer: {
-    justifyContent: 'center'
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-around',
   },
   title: {
     color: '#424242',
