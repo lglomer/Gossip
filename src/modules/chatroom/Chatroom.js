@@ -7,11 +7,6 @@ import * as Sounds from '../_global/sounds';
 //const moreIcon = require('../../img/ic_add_black_48dp.png');
 
 class Chatroom extends Component {
-  static navigatorStyle = {
-    tabBarButtonColor: 'red',
-    tabBarSelectedButtonColor: 'red',
-  };
-
   componentWillMount() {
     const { chatToEnter, friend } = this.props;
 

@@ -15,13 +15,6 @@ registerScreens(store, Provider); // register app's screens
 
 const appStyle = {
   statusBarColor: '#AD1457',
-  //navigationBarColor: '#FFFFFF',
-  navBarBackgroundColor: '#FFFFFF',
-  navBarTextColor: 'black',
-  navBarButtonColor: 'black',
-  tabBarButtonColor: '#AD1457',
-  tabBarSelectedButtonColor: '#AD1457',
-  tabBarBackgroundColor: '#AD1457'
 };
 
 const portraitOnlyMode = true; // full support only on 2.0
@@ -30,6 +23,8 @@ const storage = new Storage({
     storageBackend: AsyncStorage,
     defaultExpires: null
 });
+
+const icon = require('./img/one@4x.android.png');
 
 export default class App {
   constructor() {
@@ -55,16 +50,11 @@ export default class App {
           firebase.auth().signOut() is only called inside of appActions.logoutUser()
        */
     });
-    //
-    // if (store.getState().root.currentUser) { // previously logged in
-    //
-    // }
     store.subscribe(this.onStoreUpdate.bind(this));
   }
 
   componentDidMount() {
     //FCM.requestPermissions(); // for ios
-    Alert.alert('componentDidMount');
     FCM.getFCMToken().then(token => {
       Alert.alert('token received');
       console.log('TOKEN (getFCMToken)', token);
@@ -160,21 +150,17 @@ export default class App {
   }
 
   startFullApp() {
-    Navigation.startSingleScreenApp({
-      screen: {
-        screen: 'Gossip.Root',
-        title: 'Chats',
-        topTabs: this.createTabs(),
-        navigatorStyle: {
-           navBarBackgroundColor: '#4dbce9',
-           navBarTextColor: '#ffff00',
-           navBarSubtitleTextColor: '#ff0000',
-           navBarButtonColor: '#ffffff',
-           statusBarTextColorScheme: 'light',
-           tabBarButtonColor: 'red',
-           tabBarSelectedButtonColor: 'red',
-        }
+    Navigation.startTabBasedApp({
+      tabs: this.createTabs(),
+      tabsStyle: {
+        tabBarButtonColor: '#ffff00',
+        tabBarSelectedButtonColor: '#ff9900',
+        tabBarBackgroundColor: '#551A8B'
       },
+      // screen: {
+      //   screen: 'Gossip.Root',
+      //   title: 'Chats',
+      // },
       portraitOnlyMode,
       appStyle,
       // passProps: {
@@ -186,14 +172,22 @@ export default class App {
   createTabs() {
     return [
       {
-        screenId: 'Gossip.Chats',
+        screen: 'Gossip.Chats',
         title: 'Chats',
         label: 'Chats',
+        icon
       },
       {
-        screenId: 'Gossip.Friends',
+        screen: 'Gossip.Friends',
         title: 'Friends',
         label: 'Friends',
+        icon
+      },
+      {
+        screen: 'Gossip.Friends',
+        title: 'Friends',
+        label: 'Friends',
+        icon
       },
     ];
   }

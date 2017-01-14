@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, ScrollView, Text } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import * as friendsActions from './reducer';
 import { ChatList } from '../_global/components';
 
@@ -18,17 +18,8 @@ class Friends extends Component {
 	}
 
 	renderOnlineUsers() {
-		const { padding, sectionTitle } = styles;
-		const { isLoadingOnlineUsers, onlineUsersEmpty } = this.props;
-		if (isLoadingOnlineUsers || onlineUsersEmpty) {
-			return (
-				<Text style={[padding, sectionTitle]}>ONLINE USERS</Text>
-			);
-		}
-
 		return (
 			<View>
-				<Text style={[padding, sectionTitle]}>ONLINE USERS</Text>
 				<ChatList
 					list={this.props.onlineUsers}
 					onChatPress={this.enterChatWithUser.bind(this)}
