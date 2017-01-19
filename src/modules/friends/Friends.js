@@ -44,7 +44,7 @@ class Friends extends Component {
 
 const styles = {
 	container: {
-		backgroundColor: '#EEEEEE',
+		backgroundColor: '#F7F7F7',
 		flex: 1,
 	},
 	bodyContainer: {

@@ -1,4 +1,4 @@
-/* eslint-disable  global-require */
+/* eslint-disable global-require */
 import { Navigation } from 'react-native-navigation';
 import { AsyncStorage, Alert } from 'react-native';
 import { Provider } from 'react-redux';
@@ -17,6 +17,12 @@ const appStyle = {
   statusBarColor: '#AD1457',
 };
 
+const navigatorStyle = {
+  navBarBackgroundColor: '#e91e63',
+  navBarTextColor: '#FFFFFF',
+  navBarButtonColor: '#FFFFFF'
+};
+
 const portraitOnlyMode = true; // full support only on 2.0
 
 const storage = new Storage({
@@ -24,7 +30,9 @@ const storage = new Storage({
     defaultExpires: null
 });
 
-const icon = require('./img/one@4x.android.png');
+const chatsIcon = require('./img/chatsIcon.png'); // eslint-disable-line
+const friendsIcon = require('./img/friendsIcon.png'); // eslint-disable-line
+const settingsIcon = require('./img/settingsIcon.png'); // eslint-disable-line
 
 export default class App {
   constructor() {
@@ -35,6 +43,7 @@ export default class App {
       storageBucket: 'gossip-c3ea2.appspot.com',
       messagingSenderId: '877126629070'
     };
+
     firebase.initializeApp(config);
 
     firebase.auth().onAuthStateChanged((user) => {
@@ -151,46 +160,37 @@ export default class App {
 
   startFullApp() {
     Navigation.startTabBasedApp({
-      tabs: this.createTabs(),
-      tabsStyle: {
-        tabBarButtonColor: '#ffff00',
-        tabBarSelectedButtonColor: '#ff9900',
-        tabBarBackgroundColor: '#551A8B'
-      },
-      // screen: {
-      //   screen: 'Gossip.Root',
-      //   title: 'Chats',
-      // },
+      tabs: [
+        {
+          screen: 'Gossip.Chats',
+          label: 'Chats',
+          title: 'Chats',
+          icon: chatsIcon,
+          navigatorStyle
+        },
+        {
+          screen: 'Gossip.Friends',
+          label: 'Friends',
+          title: 'Friends',
+          icon: friendsIcon,
+          navigatorStyle
+        },
+        {
+          screen: 'Gossip.Settings',
+          label: 'Settings',
+          title: 'Settings',
+          icon: settingsIcon,
+          navigatorStyle
+        }
+      ],
       portraitOnlyMode,
       appStyle,
       // passProps: {
       //   navigatorStyle
       // }
-    });
-  }
-
-  createTabs() {
-    return [
-      {
-        screen: 'Gossip.Chats',
-        title: 'Chats',
-        label: 'Chats',
-        icon
-      },
-      {
-        screen: 'Gossip.Friends',
-        title: 'Friends',
-        label: 'Friends',
-        icon
-      },
-      {
-        screen: 'Gossip.Friends',
-        title: 'Friends',
-        label: 'Friends',
-        icon
-      },
-    ];
-  }
+      animationType: 'none'
+  });
+}
 
   onStoreUpdate() {
     const { root } = store.getState();

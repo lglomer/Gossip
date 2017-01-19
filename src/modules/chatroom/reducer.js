@@ -176,7 +176,7 @@ function createChatWithFriend({ chatId, friend }) {
 			isMember: true
 		};
 
-		chatUpdates[`/chats/${chatId}`] = chatObj;
+		//chatUpdates[`/chats/${chatId}`] = chatObj;
 
 		chatUpdates[`/userChats/${friend.id}/${chatId}`] = chatObj;
 		chatUpdates[`/userChats/${currentUser.uid}/${chatId}`] = chatObj;
@@ -190,6 +190,21 @@ function createChatWithFriend({ chatId, friend }) {
 
 		offlineUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = null;
 		offlineUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = null;
+
+		// if friend disconnects, remove them from the chat
+		// firebase.database().ref(`/users/${friend.id}/isOnline`).on('value', snap => {
+		// 	if (snap.exists()) {
+		// 		if (snap.val() === false) {
+		// 			const friendUpdates = {};
+		// 			firebase.database().ref(`/userChats/${currentUser.uid}/${chatId}/members`)
+		// 			.once('value', membershot => {
+		// 				membershot.forEach(member => {
+		// 					friendUpdates[`/userChats/${member.getKey()}/${chatId}/members/${friend.id}`] = null;
+		// 				});
+		// 			});
+		// 		}
+		// 	}
+		// });
 
 
 		firebase.database().ref().onDisconnect().update(offlineUpdates);

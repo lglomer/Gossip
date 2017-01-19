@@ -59,7 +59,7 @@ class Signup extends Component {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#F7F7F7',
     padding: 20
   },
 };

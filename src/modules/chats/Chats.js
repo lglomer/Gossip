@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Alert } from 'react-native';
 import _ from 'lodash';
 import * as chatsActions from './reducer';
 import { ChatList } from '../_global/components';
@@ -8,18 +8,21 @@ import { ChatList } from '../_global/components';
 class Chats extends Component {
 	static navigatorStyle = {
 		navBarBackgroundColor: '#FFFFFF',
+		drawUnderTabBar: true
 	}
 
 	static navigatorButtons = {
 		rightButtons: [
 			{
 				title: 'Settings',
-				id: 'settings',
+				id: 'settings'
 			}
 		]
-	}
+	};
+
 	constructor(props) {
 		super(props);
+		// if you want to listen on navigator events, set this up
 		this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
 	}
 
@@ -35,6 +38,7 @@ class Chats extends Component {
 			});
 		}
 	}
+
 
 	enterChat(chat) {
 		let title = '';
@@ -76,8 +80,9 @@ class Chats extends Component {
 
 const styles = {
 	container: {
-		backgroundColor: '#EEEEEE',
+		backgroundColor: '#F7F7F7',
 		flex: 1,
+		paddingBottom: 50
 	},
 	bodyContainer: {
 		flex: 1,

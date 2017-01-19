@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, Text, StyleSheet, Platform } from 'react-native';
+import { TextInput, Text, View, StyleSheet, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
@@ -7,6 +7,14 @@ import * as Sounds from '../_global/sounds';
 //const moreIcon = require('../../img/ic_add_black_48dp.png');
 
 class Chatroom extends Component {
+  static navigatorStyle = {
+    tabBarHidden: true,
+    navBarBackgroundColor: '#e91e63',
+    statusBarColor: '#AD1457',
+    navBarButtonColor: '#FFFFFF',
+    navBarTextColor: '#FFFFFF'
+  }
+
   componentWillMount() {
     const { chatToEnter, friend } = this.props;
 
@@ -71,22 +79,28 @@ class Chatroom extends Component {
 
   render() {
     return (
-      <GiftedChat
-        messages={this.props.messages}
-        onSend={this.onSend.bind(this)}
-        renderComposer={this.renderComposer.bind(this)}
-        renderFooter={this.renderFooter.bind(this)}
-        user={{
-          _id: this.props.currentUser.uid,
-          name: this.props.currentUser.displayName,
-          avatar: this.props.currentUser.photoURL
-        }}
-      />
+      <View style={styles.container}>
+        <GiftedChat
+          messages={this.props.messages}
+          onSend={this.onSend.bind(this)}
+          renderComposer={this.renderComposer.bind(this)}
+          renderFooter={this.renderFooter.bind(this)}
+          user={{
+            _id: this.props.currentUser.uid,
+            name: this.props.currentUser.displayName,
+            avatar: this.props.currentUser.photoURL
+          }}
+        />
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F7F7F7',
+    flex: 1,
+  },
   textInput: {
     flex: 1,
     marginLeft: 10,
