@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { TextInput, Text, View, StyleSheet, Platform } from 'react-native';
+import { TextInput, Image, ActivityIndicator, View, StyleSheet, Platform } from 'react-native';
 import { connect } from 'react-redux';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Time } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
+import { MemberList } from './components';
 import * as Sounds from '../_global/sounds';
 //const moreIcon = require('../../img/ic_add_black_48dp.png');
+
+const sentIcon = require('../../img/sentIcon.png');
+const seenIcon = require('../../img/seenIcon.png');
 
 class Chatroom extends Component {
   static navigatorStyle = {
@@ -17,7 +21,6 @@ class Chatroom extends Component {
 
   componentWillMount() {
     const { chatToEnter, friend } = this.props;
-
     if (chatToEnter) {
       if (chatToEnter.isMember) {
         this.props.chatInitialized(chatToEnter, chatToEnter.id);
@@ -31,8 +34,7 @@ class Chatroom extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.chatId !== nextProps.chatId) {
-      this.props.subscribeToMessages({ chatId: nextProps.chatId });
-      this.props.subscribeToTyping({ chatId: nextProps.chatId });
+      this.props.subscribeToAll({ chatId: nextProps.chatId });
     }
   }
 
@@ -51,7 +53,6 @@ class Chatroom extends Component {
         placeholder={'Write a message...'}
         multiline
         onChange={(e) => {
-          Sounds.playSound('typing_key_press.wav');
           props.onChange(e);
         }}
         onChangeText={(text) => {
@@ -71,10 +72,46 @@ class Chatroom extends Component {
     );
   }
 
-  renderFooter() {
+  renderSentIndicator(isSent) {
+    if (isSent) {
+      return (
+        <View style={{ marginTop: 1, marginRight: 13 }}>
+          <Image
+            style={{ height: 13, width: 13 }}
+            source={sentIcon}
+          />
+        </View>
+      );
+    }
+
     return (
-      <Text style={styles.typing}>{this.props.typingText}</Text>
+      <View style={{ marginTop: 3, marginRight: 12, marginLeft: 4 }}>
+        <ActivityIndicator
+          color={'#FFFFFF'}
+          size={10} // only on android
+        />
+      </View>
     );
+  }
+
+  renderTime(props) {
+    return (
+      <View style={{ flexDirection: 'row' }}>
+        <Time {...props} />
+        {this.renderSentIndicator(props.currentMessage.isSent)}
+      </View>
+    );
+  }
+
+  renderFooter() {
+    if (this.props.chat && this.props.chat.members) {
+      return (
+        <MemberList
+          members={this.props.chat.members}
+        />
+      );
+      //<Text style={styles.typing}>{this.props.typingText}</Text>
+    }
   }
 
   render() {
@@ -83,8 +120,9 @@ class Chatroom extends Component {
         <GiftedChat
           messages={this.props.messages}
           onSend={this.onSend.bind(this)}
+          //renderFooter={this.renderFooter.bind(this)}
           renderComposer={this.renderComposer.bind(this)}
-          renderFooter={this.renderFooter.bind(this)}
+          renderTime={this.renderTime.bind(this)}
           user={{
             _id: this.props.currentUser.uid,
             name: this.props.currentUser.displayName,

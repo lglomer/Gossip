@@ -7,3 +7,4 @@ export * from './Card/CardIcon';
 export * from './Card/CardActions';
 export * from './Input';
 export * from './Button';
+export * from './Avatar';

@@ -79,7 +79,8 @@ const styles = {
     paddingRight: 15,
     position: 'relative',
     flexDirection: 'row',
-    // backgroundColor: '#FFF'
+    marginBottom: 5,
+    marginTop: 5
   },
   leftPart: {
     flex: 1,
@@ -99,7 +100,7 @@ const styles = {
   },
   title: {
     color: '#424242',
-    fontSize: 13,
+    fontSize: 14,
     //fontWeight: '500'
   },
   subtitle: {
@@ -112,9 +113,9 @@ const styles = {
     paddingRight: 7,
   },
   image: {
-    height: 30,
-    width: 30,
-    borderRadius: 15
+    height: 40,
+    width: 40,
+    borderRadius: 50,
   },
   badge: {
     backgroundColor: '#ffc107',

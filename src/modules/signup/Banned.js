@@ -13,7 +13,7 @@ class SignupFinish extends Component {
   componentWillReceiveProps(props) {
     if (props.signup.signupFinished) {
       props.loggedInUser(); // signup action
-      props.loginUser(); // root action
+      props.userLoggedIn(); // root action
     }
   }
 

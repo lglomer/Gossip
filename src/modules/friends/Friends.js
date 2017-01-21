@@ -29,11 +29,11 @@ class Friends extends Component {
 	}
 
 	render() {
-		const { container, bodyContainer, section } = styles;
+		const { container, bodyContainer } = styles;
 		return (
 			<ScrollView contentContainerStyle={container}>
 				<View style={bodyContainer}>
-					<View style={section}>
+					<View>
 						{this.renderOnlineUsers()}
 					</View>
 				</View>
@@ -54,15 +54,6 @@ const styles = {
 	padding: {
 		paddingRight: 15,
 		paddingLeft: 15,
-	},
-	section: {
-		paddingBottom: 10,
-		paddingTop: 10
-	},
-	sectionTitle: {
-		color: '#424242',
-		fontWeight: '500',
-		fontSize: 13,
 	}
 };
 

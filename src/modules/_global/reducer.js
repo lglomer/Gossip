@@ -76,19 +76,21 @@ export function userLoggedIn(user) {
     const firebaseRef = firebase.database().ref();
     const userRef = firebase.database().ref(`users/${currentUser.uid}`);
 
-    // Check if signup is finished. If not open signupFinish screen.
-    userRef.once('value', snapshot => {
-      if (!snapshot.exists() || !snapshot.val().signupFinished) {
-        dispatch(
-          changeAppRoot('signup-finish', { displayName, email, photoUrl, uid })
-        );
-      } else {
-       getUserUpdates(currentUser).then((allUpdates) => {
-          firebaseRef.update(allUpdates.onlineUpdates);
-          firebaseRef.onDisconnect().update(allUpdates.offlineUpdates);
-       });
+    dispatch(changeAppRoot('app', { displayName, email, photoUrl, uid }));
 
-       dispatch(changeAppRoot('app', { displayName, email, photoUrl, uid }));
+    getUserUpdates(currentUser).then(({ onlineUpdates, offlineUpdates }) => {
+      firebaseRef.update(onlineUpdates);
+      firebaseRef.onDisconnect().update(offlineUpdates);
+    });
+
+    // Check if banned or not exists. If all good do online/offline updates.
+    userRef.once('value', snapshot => {
+      if (snapshot.exists()) {
+        if (snapshot.val().isBanned) {
+          return dispatch(
+            changeAppRoot('banned', { displayName, email, photoUrl, uid })
+          );
+        }
       }
     });
   };

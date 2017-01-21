@@ -11,33 +11,33 @@ class Chats extends Component {
 		drawUnderTabBar: true
 	}
 
-	static navigatorButtons = {
-		rightButtons: [
-			{
-				title: 'Settings',
-				id: 'settings'
-			}
-		]
-	};
-
-	constructor(props) {
-		super(props);
-		// if you want to listen on navigator events, set this up
-		this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-	}
+	// static navigatorButtons = {
+	// 	rightButtons: [
+	// 		{
+	// 			title: 'Settings',
+	// 			id: 'settings'
+	// 		}
+	// 	]
+	// };
+	//
+	// constructor(props) {
+	// 	super(props);
+	// 	// if you want to listen on navigator events, set this up
+	// 	this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+	// }
 
 	componentWillMount() {
 		this.props.fetchChats();
 	}
 
-	onNavigatorEvent(event) {
-		if (event.id === 'settings') {
-			this.props.navigator.push({
-				screen: 'Gossip.Settings',
-				title: 'Settings'
-			});
-		}
-	}
+	// onNavigatorEvent(event) {
+	// 	if (event.id === 'settings') {
+	// 		this.props.navigator.push({
+	// 			screen: 'Gossip.Settings',
+	// 			title: 'Settings'
+	// 		});
+	// 	}
+	// }
 
 
 	enterChat(chat) {

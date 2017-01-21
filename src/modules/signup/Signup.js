@@ -9,6 +9,27 @@ import { Card, CardSection, Input, Button } from '../_global/components';
 import * as signupActions from './reducer';
 
 class Signup extends Component {
+  static navigatorButtons = {
+    rightButtons: [
+      {
+        title: 'SIGN UP',
+        id: 'signup'
+      }
+    ]
+  };
+
+  constructor(props) {
+    super(props);
+    // if you want to listen on navigator events, set this up
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+  }
+
+  onNavigatorEvent(event) {
+    if (event.id === 'signup') {
+      this.onSignupPress();
+    }
+  }
+
   onSignupPress() {
     const { email, password } = this.props.signup;
     this.props.signupUser({ email, password });
@@ -24,33 +45,26 @@ class Signup extends Component {
           // color={'#111'}
           // overlayColor={'rgba(0,0,0,0.4)'}
         />
-        <Card>
-          <CardSection>
             <Input
-              label="Email"
-              placeholder="example@mail.com"
+              style={styles.input}
+              placeholder="Email"
               value={email}
               onChangeText={value => this.props.formChange({ key: 'email', value })}
             />
-          </CardSection>
-
-          <CardSection>
             <Input
-              label="Password"
+              style={styles.input}
+              placeholder="Full Name"
+              value={email}
+              onChangeText={value => this.props.formChange({ key: 'displayName', value })}
+            />
+            <Input
+              style={styles.input}
               secureTextEntry
-              placeholder="password"
+              placeholder="Password"
               value={password}
               onChangeText={value => this.props.formChange({ key: 'password', value })}
             />
-          </CardSection>
-
-          <CardSection>
-            <Button onPress={() => this.onSignupPress()} label="Sign up" type="wide" />
-          </CardSection>
-          <CardSection>
             <Text>{error}</Text>
-          </CardSection>
-        </Card>
       </View>
     );
   }
@@ -60,8 +74,10 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#F7F7F7',
-    padding: 20
+    padding: 15
   },
+  input: {
+  }
 };
 
 const mapStateToProps = state => {

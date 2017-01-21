@@ -127,8 +127,8 @@ export default class App {
         this.startWelcomeApp();
         break;
 
-      case 'signup-finish':
-        this.startFinishSignupApp();
+      case 'banned':
+        this.startBannedApp();
         break;
 
       default:
@@ -147,11 +147,11 @@ export default class App {
     });
   }
 
-  startFinishSignupApp() {
+  startBannedApp() {
     Navigation.startSingleScreenApp({
       screen: {
-        screen: 'Gossip.SignupFinish',
-        title: 'Finish Signup',
+        screen: 'Gossip.Banned',
+        title: 'Banned',
       },
       appStyle,
       portraitOnlyMode,

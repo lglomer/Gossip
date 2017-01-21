@@ -31,33 +31,21 @@ class Login extends Component {
           // color={'#111'}
           // overlayColor={'rgba(0,0,0,0.4)'}
         />
-        <Card>
-          <CardSection>
-            <Input
-              label="Email"
-              placeholder="example@mail.com"
-              value={email}
-              onChangeText={value => this.props.formChange({ key: 'email', value })}
-            />
-          </CardSection>
-
-          <CardSection>
-            <Input
-              label="Password"
-              secureTextEntry
-              placeholder="password"
-              value={password}
-              onChangeText={value => this.props.formChange({ key: 'password', value })}
-            />
-          </CardSection>
-
-          <CardSection>
-            <Button onPress={() => this.onLoginPress()} label="Login" type="wide" />
-          </CardSection>
-          <CardSection>
-            <Text>{error}</Text>
-          </CardSection>
-        </Card>
+        <Input
+          label="Email"
+          placeholder="example@mail.com"
+          value={email}
+          onChangeText={value => this.props.formChange({ key: 'email', value })}
+        />
+        <Input
+          label="Password"
+          secureTextEntry
+          placeholder="password"
+          value={password}
+          onChangeText={value => this.props.formChange({ key: 'password', value })}
+        />
+        <Button onPress={() => this.onLoginPress()} label="Login" type="wide" />
+        <Text>{error}</Text>
       </View>
     );
   }
@@ -67,7 +55,7 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#F7F7F7',
-    padding: 20
+    padding: 15
   },
 };
 
