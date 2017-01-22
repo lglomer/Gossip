@@ -2,6 +2,7 @@ import firebase from 'firebase';
 import { Alert } from 'react-native';
 import _ from 'lodash';
 import chatService from '../../services/chatService';
+import Sounds from '../../services/soundService';
 
 const CHAT_INITIALIZED = 'gossip/chatroom/CHAT_INITIALIZED';
 const FETCH_MESSAGES = 'gossip/chatroom/FETCH_MESSAGES';
@@ -111,6 +112,8 @@ export function subscribeToMessages() {
 				};
 
 				if (val.sender.id === currentUser.uid) {
+					Alert.alert(val.text);
+					Sounds.playSound('message_send.wav'); // sent
 					dispatch({
 						type: MESSAGE_EDITED,
 						payload: { message: { ...message, isSent: true }, messageIndex: 0 }

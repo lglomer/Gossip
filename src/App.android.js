@@ -8,7 +8,7 @@ import Storage from 'react-native-storage';
 import configureStore from './redux/configureStore';
 import { registerScreens } from './screens';
 import * as appActions from './modules/_global/reducer';
-import * as Sounds from './modules/_global/sounds';
+import Sounds from './services/soundService';
 
 const store = configureStore();
 registerScreens(store, Provider); // register app's screens

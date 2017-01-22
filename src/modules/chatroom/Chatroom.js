@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
-import { TextInput, Image, ActivityIndicator, View, StyleSheet, Platform } from 'react-native';
+import {
+  TextInput,
+  Image,
+  Alert,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  Platform
+} from 'react-native';
 import { connect } from 'react-redux';
 import { GiftedChat, Time } from 'react-native-gifted-chat';
 import * as chatroomActions from './reducer';
 import { MemberList } from './components';
-import * as Sounds from '../_global/sounds';
 //const moreIcon = require('../../img/ic_add_black_48dp.png');
 
 const sentIcon = require('../../img/sentIcon.png');
@@ -39,7 +46,7 @@ class Chatroom extends Component {
   }
 
   onSend(message) {
-    Sounds.playSound('message_send.wav');
+    //Sounds.playSound('message_send.wav');
     if (this.props.chatId) {
       this.props.sendMessage({ message, chatId: this.props.chatId });
     } else {
@@ -73,25 +80,30 @@ class Chatroom extends Component {
   }
 
   renderSentIndicator(isSent) {
-    if (isSent) {
-      return (
-        <View style={{ marginTop: 1, marginRight: 13 }}>
-          <Image
-            style={{ height: 13, width: 13 }}
-            source={sentIcon}
-          />
-        </View>
-      );
-    }
+    switch (isSent) {
+      case true:
+        return (
+          <View style={{ marginTop: 1, marginRight: 13 }}>
+            <Image
+              style={{ height: 13, width: 13 }}
+              source={sentIcon}
+            />
+          </View>
+        );
 
-    return (
-      <View style={{ marginTop: 3, marginRight: 12, marginLeft: 4 }}>
-        <ActivityIndicator
-          color={'#FFFFFF'}
-          size={10} // only on android
-        />
-      </View>
-    );
+      case false:
+        return (
+          <View style={{ marginTop: 3, marginRight: 12, marginLeft: 4 }}>
+            <ActivityIndicator
+              color={'#FFFFFF'}
+              size={10} // only on android
+            />
+          </View>
+        );
+
+      default:
+        return null;
+    }
   }
 
   renderTime(props) {

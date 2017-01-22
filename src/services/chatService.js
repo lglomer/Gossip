@@ -1,4 +1,5 @@
 import firebase from 'firebase';
+import { Alert } from 'react-native';
 import _ from 'lodash';
 import eventService from './eventService';
 
@@ -110,17 +111,29 @@ function listenFriendForChat(friend) {
   const privateChatRef =
     firebase.database().ref(`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`);
 
-  const callback = (snapshot) => {
+  // ON
+  const callbackOn = (snapshot) => {
     if (snapshot.exists()) {
       firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
-        eventService.invokeEventCallbacks('friend_started_chat', chatshot);
+        eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
       });
 
-      privateChatRef.off('value', callback);
+      privateChatRef.off('value', callbackOn);
     }
   };
-  privateChatRef.on('value', callback);
-  privateChatRef.once('value', callback);
+  privateChatRef.on('value', callbackOn);
+
+  // ONCE
+  const callbackOnce = (snapshot) => {
+    if (snapshot.exists()) {
+      firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
+        eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
+      });
+
+      privateChatRef.off('value', callbackOnce);
+    }
+  };
+  privateChatRef.once('value', callbackOnce);
 
   let offlineUpdates = {}; // eslint-disable-line
   offlineUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = null;
