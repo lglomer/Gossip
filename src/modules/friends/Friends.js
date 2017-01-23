@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { View, ScrollView } from 'react-native';
 import * as friendsActions from './reducer';
-import { ChatList } from '../_global/components';
+import { ChatList, ContactList } from '../_global/components';
+
 
 class Friends extends Component {
 	componentWillMount() {
 		this.props.fetchOnlineFriends();
+		this.props.fetchContacts();
 	}
 
 	enterChatWithUser(user) {
@@ -17,25 +19,18 @@ class Friends extends Component {
 		});
 	}
 
-	renderOnlineUsers() {
-		return (
-			<View>
-				<ChatList
-					list={this.props.onlineUsers}
-					onChatPress={this.enterChatWithUser.bind(this)}
-				/>
-			</View>
-		);
-	}
-
 	render() {
 		const { container, bodyContainer } = styles;
 		return (
 			<ScrollView contentContainerStyle={container}>
 				<View style={bodyContainer}>
-					<View>
-						{this.renderOnlineUsers()}
-					</View>
+					<ChatList
+						list={this.props.onlineUsers}
+						onChatPress={this.enterChatWithUser.bind(this)}
+					/>
+					<ContactList
+						contacts={this.props.contacts}
+					/>
 				</View>
 			</ScrollView>
 		);

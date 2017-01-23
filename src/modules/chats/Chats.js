@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, ScrollView, Alert } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import _ from 'lodash';
 import * as chatsActions from './reducer';
 import { ChatList } from '../_global/components';
@@ -55,22 +55,16 @@ class Chats extends Component {
 		});
 	}
 
-	renderChats() {
-		return (
-			<ChatList
-				list={this.props.chats}
-				onChatPress={this.enterChat.bind(this)}
-			/>
-		);
-	}
-
 	render() {
 		const { container, bodyContainer, section } = styles;
 		return (
 			<ScrollView contentContainerStyle={container}>
 				<View style={bodyContainer}>
 					<View style={section}>
-						{this.renderChats()}
+						<ChatList
+							list={this.props.chats}
+							onChatPress={this.enterChat.bind(this)}
+						/>
 					</View>
 				</View>
 			</ScrollView>

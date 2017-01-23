@@ -1,18 +1,17 @@
 /* eslint-disable global-require */
 import React, { Component } from 'react';
 import {
-	ListView,
+	ListView
 } from 'react-native';
-import { ChatCard } from '../';
 
-//const addIcon = require('../../img/ic_add_black_48dp.png');
 /*
-	<ChatCard
+	<List
 		list={this.props.friendsList}
-		onChatPress={this.enterChat.bind(this)}
+		renderRow={this.enterChat.bind(this)}
 	/>
 */
-class ChatList extends Component {
+
+class List extends Component {
   constructor(props) {
 		super(props);
 		this.state = { dataSource: [] };
@@ -26,24 +25,13 @@ class ChatList extends Component {
 		this.createDataSource(nextProps);
 	}
 
-  createDataSource({ list }) { //props.friends.friends
+  createDataSource({ list }) {
 		const ds = new ListView.DataSource({
 			rowHasChanged: (r1, r2) => r1 !== r2
 		});
 		//[{ data: { content: 'cloneMe!' } }]
-		const friendsDs = ds.cloneWithRows(list);
-		this.setState({ dataSource: friendsDs });
-	}
-
-	renderRow(chat) {
-		return (
-      <ChatCard
-        displayName={chat.displayName}
-				members={chat.members}
-        onPress={() => this.props.onChatPress(chat)}
-				unreadNum={chat.unseenNum}
-      />
-    );
+		const listDs = ds.cloneWithRows(list);
+		this.setState({ dataSource: listDs });
 	}
 
 	render() {
@@ -52,10 +40,10 @@ class ChatList extends Component {
 				enableEmptySections
 				style={this.props.style}
 				dataSource={this.state.dataSource}
-				renderRow={this.renderRow.bind(this)}
+				renderRow={this.props.renderRow.bind(this)}
 			/>
 		);
 	}
 }
 
-export { ChatList };
+export { List };

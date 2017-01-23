@@ -112,7 +112,6 @@ export function subscribeToMessages() {
 				};
 
 				if (val.sender.id === currentUser.uid) {
-					Alert.alert(val.text);
 					Sounds.playSound('message_send.wav'); // sent
 					dispatch({
 						type: MESSAGE_EDITED,

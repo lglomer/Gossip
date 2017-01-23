@@ -143,6 +143,7 @@ dependencies {
     compile project(':RNSound')
     compile project(':react-native-fcm')
     compile project(':react-native-vector-icons')
+    compile project(':react-native-contacts')
 }
 
 // Run this once to be able to run the application with BUCK

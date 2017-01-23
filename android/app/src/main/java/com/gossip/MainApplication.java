@@ -8,6 +8,7 @@ import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactApplication;
 import com.evollu.react.fcm.FIRMessagingPackage;
 import com.zmxv.RNSound.RNSoundPackage;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -33,7 +34,8 @@ public class MainApplication extends NavigationApplication {
       return Arrays.<ReactPackage>asList(
         new FIRMessagingPackage(),
         new RNSoundPackage(),
-        new VectorIconsPackage()
+        new VectorIconsPackage(),
+        new ReactNativeContacts()
       );
     }
 }
