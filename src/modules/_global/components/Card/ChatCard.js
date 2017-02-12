@@ -21,19 +21,23 @@ class ChatCard extends Component {
       );
     }
 
-    const ds = new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2
-		});
-		//[{ data: { content: 'cloneMe!' } }]
-		const membersDs = ds.cloneWithRows(members);
+    if (members) {
+      const ds = new ListView.DataSource({
+        rowHasChanged: (r1, r2) => r1 !== r2
+      });
+      //[{ data: { content: 'cloneMe!' } }]
+      const membersDs = ds.cloneWithRows(members);
 
-    return (
-      <ListView
-        enableEmptySections
-        dataSource={membersDs}
-        renderRow={(member) => <Text style={styles.title}>{member.displayName}</Text>}
-      />
-    );
+      return (
+        <ListView
+          enableEmptySections
+          dataSource={membersDs}
+          renderRow={(member) => <Text style={styles.title}>{member.displayName}</Text>}
+        />
+      );
+    }
+
+    return null;
   }
 
   renderBadge() {
@@ -100,7 +104,7 @@ const styles = {
   },
   title: {
     color: '#424242',
-    fontSize: 14,
+    fontSize: 15,
     //fontWeight: '500'
   },
   subtitle: {

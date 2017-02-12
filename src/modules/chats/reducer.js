@@ -72,17 +72,17 @@ export function fetchChats() {
 				});
 
 				const chats = [];
-				_.map(snapshot.val(), (val, uid) => {
-					if (!removedArr[uid]) {
-						chats[uid] = { ...val, id: uid };
-						chatService.on('message_added', (messageshot) => {
-							// firebase.database().ref(`/userChats/${currentUser.uid}/${uid}/unreadNum`)
-							// 	.set(chats[uid].unreadNum + 1);
-							dispatch({
-								type: MESSAGE_RECIEVE,
-								payload: { chatId: uid, unreadNum: chats[uid].unreadNum + 1 }
-							});
-						});
+				_.map(snapshot.val(), (val, uid) => { // for each chat
+					if (!removedArr[uid]) { // if didn't remove it
+						chats[uid] = { ...val, id: uid, unreadNum: 5 }; // add to list
+						// chatService.on('message_added', (messageshot) => {
+						// 	firebase.database().ref(`/userChats/${currentUser.uid}/${uid}/unreadNum`)
+						// 		.set(chats[uid].unreadNum + 1);
+						// 	dispatch({
+						// 		type: MESSAGE_RECIEVE,
+						// 		payload: { chatId: uid, unreadNum: chats[uid].unreadNum + 1 }
+						// 	});
+						// });
 					}
 				});
 

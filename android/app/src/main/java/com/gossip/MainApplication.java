@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactApplication;
+import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
@@ -35,7 +36,8 @@ public class MainApplication extends NavigationApplication {
         new FIRMessagingPackage(),
         new RNSoundPackage(),
         new VectorIconsPackage(),
-        new ReactNativeContacts()
+        new ReactNativeContacts(),
+        new RCTCameraPackage()
       );
     }
 }

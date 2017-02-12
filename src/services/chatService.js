@@ -1,11 +1,10 @@
 import firebase from 'firebase';
-import { Alert } from 'react-native';
-import _ from 'lodash';
 import eventService from './eventService';
 
 function init(chatId) {
   _onMessageAdded(chatId);
   _onTypingChanged(chatId);
+  _onMembersChanged(chatId);
 }
 
 function on(eventId, callback) {
@@ -35,6 +34,31 @@ function _onTypingChanged(chatId) {
 
   typingRef.once('child_added', snapshot => {
     eventService.invokeEventCallbacks('once_typing_changed', snapshot);
+  });
+}
+
+function _onMembersChanged(chatId) {
+  const membersRef = firebase.database().ref(`/chats/${chatId}/members`);
+  membersRef.on('value', snapshot => {
+    eventService.invokeEventCallbacks('on_members_changed', snapshot);
+  });
+
+  membersRef.once('value', snapshot => {
+    eventService.invokeEventCallbacks('once_members_changed', snapshot);
+  });
+}
+
+function _onFriendConnectChange(friendId) {
+  firebase.database().ref(`/users/${friendId}/isOnline`).on('value', snapshot => {
+    if (snapshot.exists() && snapshot.val() === true) {
+      eventService.invokeEventCallbacks('on_friend_connect_change', snapshot);
+    }
+  });
+
+  firebase.database().ref(`/users/${friendId}/isOnline`).once('value', snapshot => {
+    if (snapshot.exists() && snapshot.val() === true) {
+      eventService.invokeEventCallbacks('once_friend_connect_change', snapshot);
+    }
   });
 }
 
@@ -91,18 +115,23 @@ function getTypingText(snapshot) {
 }
 
 function sendMessage({ chatId, message, messageKey }) {
-  const { currentUser } = firebase.auth();
-  const messageRef = firebase.database().ref(`/chatMessages/${chatId}/${messageKey}`);
-  messageRef.set({
-    text: message[0].text,
-    timestamp: firebase.database.ServerValue.TIMESTAMP,
-    sender: {
-      id: currentUser.uid,
-      displayName: currentUser.displayName
-    },
-    seenBy: {
-      [currentUser.uid]: true
-    }
+  return new Promise((resolve) => {
+    const { currentUser } = firebase.auth();
+    const messageRef = firebase.database().ref(`/chatMessages/${chatId}/${messageKey}`);
+    messageRef.set({
+      _id: messageKey,
+      text: message[0].text,
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      user: {
+        _id: currentUser.uid,
+        name: currentUser.displayName
+      },
+      seenBy: {
+        [currentUser.uid]: true
+      }
+    }).then(() => {
+      resolve(messageKey);
+    });
   });
 }
 
@@ -118,7 +147,9 @@ function listenFriendForChat(friend) {
         eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
       });
 
-      privateChatRef.off('value', callbackOn);
+      //  privateChatRef.off('value', callbackOn);
+    } else {
+      eventService.invokeEventCallbacks('on_friend_ended_chat');
     }
   };
   privateChatRef.on('value', callbackOn);
@@ -129,15 +160,13 @@ function listenFriendForChat(friend) {
       firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
         eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
       });
-
-      privateChatRef.off('value', callbackOnce);
     }
   };
   privateChatRef.once('value', callbackOnce);
 
   let offlineUpdates = {}; // eslint-disable-line
   offlineUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = null;
-  //offlineUpdates[`/userFriends/${chatFriend.id}/${currentUser.uid}/privateChatId`] = null;
+  //offlineUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = null;
 
   firebase.database().ref().onDisconnect().update(offlineUpdates);
 }
@@ -168,7 +197,7 @@ function createChatWithFriend({ chatId, friend }) {
 		chatUpdates[`/userChats/${currentUser.uid}/${chatId}`] = chatObj;
 
 		chatUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = chatId;
-		chatUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = chatId;
+		//chatUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = chatId;
 
 		offlineUpdates[`/userChats/${friend.id}/${chatId}/members/${currentUser.uid}`] = null;
 		offlineUpdates[`/userChats/${currentUser.uid}/${chatId}/members/${currentUser.uid}`] = null;
@@ -200,6 +229,50 @@ function createChatWithFriend({ chatId, friend }) {
 	});
 }
 
+function enterExistingChat(chatId) {
+	return new Promise((resolve) => {
+		const { currentUser } = firebase.auth();
+		const firebaseRef = firebase.database().ref();
+		const friendsRef = firebase.database().ref(`/userFriends/${currentUser.uid}`);
+		const membersRef = firebase.database().ref(`/chats/${chatId}/members`);
+		const updateObj = {
+			displayName: currentUser.displayName,
+			joinedAt: firebase.database.ServerValue.TIMESTAMP
+		};
+
+		let path;
+		let onlineUpdates = {}; // eslint-disable-line
+		let offlineUpdates = {}; // eslint-disable-line
+
+		onlineUpdates[`/userChats/${currentUser.uid}/${chatId}/members/${currentUser.uid}`]
+			= updateObj;
+		onlineUpdates[`/userChats/${currentUser.uid}/${chatId}/isMember`] = true;
+		onlineUpdates[`/userChats/${currentUser.uid}/${chatId}/unseenNum`] = 0;
+
+		offlineUpdates[`/userChats/${currentUser.uid}/${chatId}/members/${currentUser.uid}`] = null;
+		offlineUpdates[`/userChats/${currentUser.uid}/${chatId}/isMember`] = null;
+		offlineUpdates[`/userChats/${currentUser.uid}/${chatId}/unseenNum`] = null;
+
+    // prepare friends updates
+    const updateUsers = (friendshot) => {
+      friendshot.forEach(friend => { // for each friend update chats
+				path = `/userChats/${friend.getKey()}/${chatId}/members/${currentUser.uid}`;
+				onlineUpdates[path] = updateObj;
+        offlineUpdates[path] = null;
+      });
+    };
+
+		friendsRef.once('value', updateUsers).then(() => {
+			membersRef.once('value', updateUsers).then(() => {
+				firebase.database().ref().update(onlineUpdates).then(() => {
+					resolve();
+				});
+				firebaseRef.onDisconnect().update(offlineUpdates);
+			});
+		});
+	});
+}
+
 
 export default {
   init,
@@ -209,5 +282,6 @@ export default {
   getTypingText,
   sendMessage,
   listenFriendForChat,
-  createChatWithFriend
+  createChatWithFriend,
+  enterExistingChat
 };

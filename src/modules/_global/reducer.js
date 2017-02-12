@@ -1,4 +1,5 @@
 import firebase from 'firebase';
+import { Alert } from 'react-native';
 
 const LOGIN_STATE_CHANGED = 'gossip/root/LOGIN_STATE_CHANGED';
 
@@ -55,6 +56,11 @@ function getUserUpdates(user) {
         setStatusUpdate(`/userFriends/${friend.getKey()}/${currentUser.uid}`);
       });
     };
+
+    //TESTING
+    onlineUpdates[`/userStatus/${currentUser.uid}`] = 'online';
+    offlineUpdates[`/userStatus/${currentUser.uid}`] = 'offline';
+
 
     // execute updates
     friendsRef.once('value', updateFriends).then(() => {

@@ -1,5 +1,7 @@
 import firebase from 'firebase';
 import _ from 'lodash';
+import { Alert } from 'react-native';
+import { parse, format, isValidNumber } from 'libphonenumber-js';
 
 const Contacts = require('react-native-contacts');
 
@@ -47,11 +49,68 @@ export default function (state = initialState, action) {
 
 export const fetchContacts = () => {
   return (dispatch) => {
+		function getPhoneNumber(contact) {
+			let number = '';
+			let label = '';
+			contact.phoneNumbers.forEach((phone) => {
+				if (label !== 'mobile' && phone.number !== '') {
+					label = phone.label;
+					number = phone.number;
+				}
+			});
+
+			const newPhone = parse(number, 'IL').phone;
+			if (isValidNumber(number, 'IL')) {
+				return format(newPhone, 'IL', 'International_plaintext');
+			}
+
+			return '';
+		}
+
+		function getDisplayName(contact) {
+			let name = '';
+
+			if (contact.givenName) {
+				name += `${contact.givenName} `;
+			}
+			if (contact.middleName) {
+				name += `${contact.middleName} `;
+			}
+
+			if (contact.familyName) {
+				name += `${contact.familyName}`;
+			}
+
+			name = name.trim();
+
+			return name;
+		}
+
 		Contacts.getAll((err, contacts) => {
 			if (!err) {
+				let contactsObj = {};
+				contacts.forEach((contact) => {
+					if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
+						const phone = getPhoneNumber(contact);
+						if (phone !== '' && !contactsObj[phone]) {
+							contactsObj = {
+								...contactsObj,
+								[phone]: {
+									number: phone,
+									name: getDisplayName(contact)
+								}
+							};
+						}
+					}
+				});
+
+				const contactsArr = _.map(contactsObj, (val) => {
+					return val;
+				});
+
 				dispatch({
 					type: FETCH_CONTACTS,
-					payload: { contacts }
+					payload: { contacts: contactsArr }
 				});
 			}
 		});
