@@ -1,10 +1,12 @@
 import firebase from 'firebase';
+import { Alert } from 'react-native';
 import eventService from './eventService';
 
 function init(chatId) {
   _onMessageAdded(chatId);
   _onTypingChanged(chatId);
   _onMembersChanged(chatId);
+  _onInvitationReceived();
 }
 
 function on(eventId, callback) {
@@ -13,6 +15,18 @@ function on(eventId, callback) {
 
 function once(eventId, callback) {
   eventService.addEventCallback(`once_${eventId}`, callback);
+}
+
+function _onInvitationReceived() {
+  const { currentUser } = firebase.auth();
+  const inviteRef = firebase.database().ref(`/invitations/${currentUser.uid}`);
+  inviteRef.orderByKey().on('child_added', snapshot => {
+    eventService.invokeEventCallbacks('on_invitation_received', snapshot);
+  });
+
+  inviteRef.orderByKey().once('child_added', snapshot => {
+    eventService.invokeEventCallbacks('once_invitation_received', snapshot);
+  });
 }
 
 function _onMessageAdded(chatId) {
@@ -48,19 +62,19 @@ function _onMembersChanged(chatId) {
   });
 }
 
-function _onFriendConnectChange(friendId) {
-  firebase.database().ref(`/users/${friendId}/isOnline`).on('value', snapshot => {
-    if (snapshot.exists() && snapshot.val() === true) {
-      eventService.invokeEventCallbacks('on_friend_connect_change', snapshot);
-    }
-  });
-
-  firebase.database().ref(`/users/${friendId}/isOnline`).once('value', snapshot => {
-    if (snapshot.exists() && snapshot.val() === true) {
-      eventService.invokeEventCallbacks('once_friend_connect_change', snapshot);
-    }
-  });
-}
+// function _onFriendConnectChange(friendId) {
+//   firebase.database().ref(`/users/${friendId}/isOnline`).on('value', snapshot => {
+//     if (snapshot.exists() && snapshot.val() === true) {
+//       eventService.invokeEventCallbacks('on_friend_connect_change', snapshot);
+//     }
+//   });
+//
+//   firebase.database().ref(`/users/${friendId}/isOnline`).once('value', snapshot => {
+//     if (snapshot.exists() && snapshot.val() === true) {
+//       eventService.invokeEventCallbacks('once_friend_connect_change', snapshot);
+//     }
+//   });
+// }
 
 function setCurrentUserTyping({ isTyping, chatId }) {
   const { currentUser } = firebase.auth();
@@ -135,41 +149,53 @@ function sendMessage({ chatId, message, messageKey }) {
   });
 }
 
-function listenFriendForChat(friend) {
-  const { currentUser } = firebase.auth();
-  const privateChatRef =
-    firebase.database().ref(`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`);
-
-  // ON
-  const callbackOn = (snapshot) => {
-    if (snapshot.exists()) {
-      firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
-        eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
-      });
-
-      //  privateChatRef.off('value', callbackOn);
-    } else {
-      eventService.invokeEventCallbacks('on_friend_ended_chat');
-    }
-  };
-  privateChatRef.on('value', callbackOn);
-
-  // ONCE
-  const callbackOnce = (snapshot) => {
-    if (snapshot.exists()) {
-      firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
-        eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
-      });
-    }
-  };
-  privateChatRef.once('value', callbackOnce);
-
-  let offlineUpdates = {}; // eslint-disable-line
-  offlineUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = null;
-  //offlineUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = null;
-
-  firebase.database().ref().onDisconnect().update(offlineUpdates);
+function sendInvitation({ chatId, friendId }) {
+  return new Promise((resolve) => {
+    const { currentUser } = firebase.auth();
+    const inviteRef = firebase.database().ref(`/invitations/${friendId}/${chatId}`);
+    inviteRef.set({ invitedBy: currentUser.uid }).then(() => {
+      resolve();
+    });
+  });
 }
+
+// function listenFriendForChat(friend) {
+//   const { currentUser } = firebase.auth();
+//   const privateChatRef =
+//     firebase.database().ref(`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`);
+//
+//   // ON
+//   const callbackOn = (snapshot) => {
+//     if (snapshot.exists()) {
+//       firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
+//         eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
+//       });
+//
+//       //  privateChatRef.off('value', callbackOn);
+//     } else {
+//       eventService.invokeEventCallbacks('on_friend_ended_chat');
+//     }
+//   };
+//   privateChatRef.on('value', callbackOn);
+//
+//   // ONCE
+//   const callbackOnce = (snapshot) => {
+//     if (snapshot.exists()) {
+//       firebase.database().ref(`/chats/${snapshot.val()}`).once('value', chatshot => {
+//         eventService.invokeEventCallbacks('on_friend_started_chat', chatshot);
+//       });
+//     } else {
+//       eventService.invokeEventCallbacks('on_friend_ended_chat');
+//     }
+//   };
+//   privateChatRef.once('value', callbackOnce);
+//
+//   let offlineUpdates = {}; // eslint-disable-line
+//   offlineUpdates[`/userFriends/${currentUser.uid}/${friend.id}/privateChatId`] = null;
+//   offlineUpdates[`/userFriends/${friend.id}/${currentUser.uid}/privateChatId`] = null;
+//
+//   firebase.database().ref().onDisconnect().update(offlineUpdates);
+// }
 
 function createChatWithFriend({ chatId, friend }) {
 	return new Promise((resolve) => {
@@ -281,7 +307,8 @@ export default {
   setCurrentUserTyping,
   getTypingText,
   sendMessage,
-  listenFriendForChat,
+  sendInvitation,
+  //listenFriendForChat,
   createChatWithFriend,
   enterExistingChat
 };

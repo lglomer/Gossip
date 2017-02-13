@@ -194,7 +194,7 @@ export function sendMessage({ message, chatId, friend }) {
 		if (chatId) {
 			const messageKey = firebase.database().ref(`/chatMessages/${chatId}`).push().key;
 			send(chatId, messageKey);
-		} else {
+		} else { // friend
 			const chatKey = firebase.database().ref('/chatMessages').push().key;
 			const messageKey = firebase.database().ref(`/chatMessages/${chatKey}`).push().key;
 
@@ -206,26 +206,19 @@ export function sendMessage({ message, chatId, friend }) {
 	};
 }
 
-export function listenFriendForChat({ chatFriend }) {
+export function listenToInvitationByFriend(friendId) {
 	return (dispatch) => {
 		const callback = (chatshot) => {
 			const chatId = chatshot.getKey();
-			chatService.enterExistingChat(chatId).then(() => {
-				dispatch(chatInitialized(chatshot.val(), chatId));
-			});
+			if (chatId === friendId) {
+				const chat = chatService.getChatById(chatId);
+				chatService.enterExistingChat(chatId).then(() => {
+					dispatch(chatInitialized(chat, chatId));
+				});
+			}
 		};
 
-		chatService.once('friend_started_chat', callback);
-		chatService.on('friend_started_chat', callback);
-		// chatService.on('friend_ended_chat', () => {
-		// 	dispatch(chatInitialized(null, null));
-		// 	dispatch({
-		// 		type: FRIEND_ONLINE_CHANGE,
-		// 		payload: { isFriendOnline: false }
-		// 	});
-		// });
-
-		chatService.listenFriendForChat(chatFriend);
+		chatService.on('invitation_received', callback);
 	};
 }
 

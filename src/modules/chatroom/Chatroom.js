@@ -12,7 +12,6 @@ import { connect } from 'react-redux';
 import { GiftedChat, InputToolbar, Time, Bubble } from 'react-native-gifted-chat';
 import _ from 'lodash';
 import * as chatroomActions from './reducer';
-import { MemberList, ChatCamera } from './components';
 
 const sentIcon = require('../../img/sentIcon.png');
 const seenIcon = require('../../img/seenIcon.png');
@@ -37,7 +36,7 @@ class Chatroom extends Component {
         this.props.enterExistingChat({ chat: chatToEnter });
       }
     } else if (friend) {
-      this.props.listenFriendForChat({ chatFriend: friend });
+      this.props.listenToInvitationByFriend(friend.id);
     }
   }
 
@@ -60,8 +59,8 @@ class Chatroom extends Component {
     const props = {
       ...inputToolbarProps,
       containerStyle: {
-        backgroundColor: 'transparent', //#F7F7F7
-        borderTopWidth: 0,
+        //backgroundColor: 'transparent', //#F7F7F7
+        //borderTopWidth: 0,
         //borderTopColor: 'transparent',
         //shadowOpacity: 0,
         //paddingBottom: 15,
@@ -108,7 +107,7 @@ class Chatroom extends Component {
     return (
       <TextInput
         placeholder={'Write a message...'}
-        placeholderTextColor={'#FFFFFF'}
+        //placeholderTextColor={'#FFFFFF'}
         multiline
         onChange={(e) => {
           props.onChange(e);
@@ -123,7 +122,7 @@ class Chatroom extends Component {
         editable={editable}
         style={[styles.textInput, styles[`disabled_${!editable}`], {
           height: Math.max(40, props.composerHeight),
-          color: '#FFFFFF'
+          //color: '#FFFFFF'
         }]}
         value={props.text}
         enablesReturnKeyAutomatically
@@ -214,8 +213,6 @@ class Chatroom extends Component {
               renderActions={this.renderActions.bind(this)}
               renderComposer={this.renderComposer.bind(this)}
               renderSend={this.renderSend.bind(this)}
-
-            renderBubble={this.renderBubble.bind(this)}
               renderTime={this.renderTime.bind(this)}
 
             user={{
@@ -233,7 +230,7 @@ class Chatroom extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //backgroundColor: '#F7F7F7', // If changed change in containerStyle above ^^
+    backgroundColor: '#F7F7F7', // If changed change in containerStyle above ^^
     flex: 1,
   },
   textInput: {
